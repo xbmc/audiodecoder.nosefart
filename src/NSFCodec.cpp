@@ -127,7 +127,8 @@ struct NSFContext
 };
 
 void* Init(const char* strFile, unsigned int filecache, int* channels,
-           int* samplerate, int* bitspersample, int64_t* totaltime)
+           int* samplerate, int* bitspersample, int64_t* totaltime,
+           int* bitrate, AEDataFormat* format, const AEChannel** channelinfo)
 {
   int track=0;
   std::string toLoad(strFile);
@@ -171,6 +172,9 @@ void* Init(const char* strFile, unsigned int filecache, int* channels,
   *samplerate = 48000;
   *bitspersample = 16;
   *totaltime = 4*60*1000;
+  *format = AE_FMT_S16NE;
+  *channelinfo = NULL;
+  *bitrate = 0;
 
   nsf_playtrack(result->module, track, 48000, 16, false);
   for (int i = 0; i < 6; i++)
