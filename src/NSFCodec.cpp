@@ -262,7 +262,7 @@ bool ReadTag(const char* strFile, char* title, char* artist,
   log_init();
   void* file = XBMC->OpenFile(strFile,0);
   if (!file)
-    return NULL;
+    return false;
 
   int len = XBMC->GetFileLength(file);
   char *data = new char[len];
