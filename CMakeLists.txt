@@ -6,11 +6,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 enable_language(CXX)
 
-find_package(xbmc REQUIRED)
+find_package(kodi REQUIRED)
 
 add_subdirectory(lib/nosefart)
 
-include_directories(${XBMC_INCLUDE_DIR}
+include_directories(${KODI_INCLUDE_DIR}
                     ${PROJECT_SOURCE_DIR}/lib/nosefart/src)
 
 set(NOSEFART_SOURCES src/NSFCodec.cpp)
