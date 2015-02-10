@@ -18,3 +18,5 @@ set(NOSEFART_SOURCES src/NSFCodec.cpp)
 set(DEPLIBS nosefart)
 
 build_addon(audiodecoder.nosefart NOSEFART DEPLIBS)
+
+include(CPack)
