@@ -10,8 +10,10 @@ set(SOURCES src/log.c
             src/sndhrdw/vrc7_snd.c
             src/sndhrdw/vrcvisnd.c)
 
-add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
+if(NOT WIN32)
+  add_options(ALL_LANGUAGES ALL_BUILDS "-fPIC")
+endif()
 
-add_definitions(-D_LINUX -DNSF_PLAYER)
+add_definitions(-DNSF_PLAYER)
 
 add_library(nosefart STATIC ${SOURCES})

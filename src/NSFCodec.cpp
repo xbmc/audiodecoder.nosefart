@@ -126,10 +126,44 @@ struct NSFContext
   size_t track;
 };
 
+#define SET_IF(ptr, value) \
+{ \
+  if ((ptr)) \
+   *(ptr) = (value); \
+}
+
+static nsf_t* LoadNSF(const std::string& toLoad)
+{
+  nsf_init();
+  log_init();
+  void* file = XBMC->OpenFile(toLoad.c_str(),0);
+  if (!file)
+    return NULL;
+
+  int len = XBMC->GetFileLength(file);
+  char *data = new char[len];
+  if (!data)
+  {
+    XBMC->CloseFile(file);
+    return NULL;
+  }
+  XBMC->ReadFile(file, data, len);
+  XBMC->CloseFile(file);
+
+  // Now load the module
+  nsf_t* result = nsf_load(NULL,data,len);
+  delete[] data;
+
+  return result;
+}
+
 void* Init(const char* strFile, unsigned int filecache, int* channels,
            int* samplerate, int* bitspersample, int64_t* totaltime,
            int* bitrate, AEDataFormat* format, const AEChannel** channelinfo)
 {
+  if (!strFile)
+    return NULL;
+
   int track=0;
   std::string toLoad(strFile);
   if (toLoad.find(".nsfstream") != std::string::npos)
@@ -145,22 +179,11 @@ void* Init(const char* strFile, unsigned int filecache, int* channels,
     toLoad = toLoad.substr(0, slash);
   }
 
-  nsf_init();
-  log_init();
-  void* file = XBMC->OpenFile(toLoad.c_str(),0);
-  if (!file)
+  NSFContext* result = new NSFContext;
+  if (!result)
     return NULL;
 
-  int len = XBMC->GetFileLength(file);
-  char *data = new char[len];
-  XBMC->ReadFile(file, data, len);
-  XBMC->CloseFile(file);
-
-  NSFContext* result = new NSFContext;
-
-  // Now load the module
-  result->module = nsf_load(NULL,data,len);
-  delete[] data;
+  result->module = LoadNSF(toLoad);
 
   if (!result->module)
   {
@@ -168,28 +191,37 @@ void* Init(const char* strFile, unsigned int filecache, int* channels,
     return NULL;
   }
 
-  *channels = 1;
-  *samplerate = 48000;
-  *bitspersample = 16;
-  *totaltime = 4*60*1000;
-  *format = AE_FMT_S16NE;
-  *channelinfo = NULL;
-  *bitrate = 0;
-
   nsf_playtrack(result->module, track, 48000, 16, false);
   for (int i = 0; i < 6; i++)
     nsf_setchan(result->module,i,true);
 
   result->head = result->buffer = new uint8_t[2*48000/result->module->playback_rate];
+  if (!result->buffer)
+  {
+    delete result;
+    return NULL;
+  }
   result->len = result->pos = 0;
   result->track = track;
+
+  SET_IF(channels, 1)
+  SET_IF(samplerate, 48000)
+  SET_IF(bitspersample, 16)
+  SET_IF(totaltime, 4*60*1000)
+  SET_IF(format, AE_FMT_S16NE)
+  SET_IF(bitrate, 0)
+  static enum AEChannel map[2] = {
+    AE_CH_FC, AE_CH_NULL
+  };
+  SET_IF(channelinfo, map)
+
 
   return result;
 }
 
 int ReadPCM(void* context, uint8_t* pBuffer, int size, int *actualsize)
 {
-  if (!context)
+  if (!context || !pBuffer || !actualsize)
     return 1;
 
   NSFContext* ctx = (NSFContext*)context;
@@ -258,47 +290,26 @@ bool DeInit(void* context)
 bool ReadTag(const char* strFile, char* title, char* artist,
              int* length)
 {
-  nsf_init();
-  log_init();
-  void* file = XBMC->OpenFile(strFile,0);
-  if (!file)
+  if (!strFile || !title || !artist || !length)
     return false;
 
-  int len = XBMC->GetFileLength(file);
-  char *data = new char[len];
-  XBMC->ReadFile(file, data, len);
-  XBMC->CloseFile(file);
-
-  // Now load the module
-  nsf_t* module = nsf_load(NULL,data,len);
-  delete[] data;
+  nsf_t*  module = LoadNSF(strFile);
   if (module)
   {
     strcpy(title, (const char*)module->song_name);
     strcpy(artist, (const char*)module->artist_name);
     *length = 4*60;
     nsf_free(&module);
+
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 int TrackCount(const char* strFile)
 {
-  nsf_init();
-  log_init();
-  void* file = XBMC->OpenFile(strFile,0);
-  if (!file)
-    return 0;
-
-  int len = XBMC->GetFileLength(file);
-  char *data = new char[len];
-  XBMC->ReadFile(file, data, len);
-  XBMC->CloseFile(file);
-
-  // Now load the module
-  nsf_t* module = nsf_load(NULL,data,len);
-  delete[] data;
+  nsf_t* module = LoadNSF(strFile);
   int result=0;
   if (module)
   {
