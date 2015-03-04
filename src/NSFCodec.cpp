@@ -18,6 +18,9 @@
  *
  */
 
+#include <algorithm>
+#include <string>
+
 #include "kodi/libXBMC_addon.h"
 
 extern "C" {

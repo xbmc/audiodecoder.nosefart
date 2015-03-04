@@ -13,7 +13,11 @@
     tags="true"
     tracks="true"
     extension=".nsf|.nsfstream"
-    library_linux="audiodecoder.nosefart.so"/>
+    library_linux="audiodecoder.nosefart.so"
+    library_osx="audiodecoder.nosefart.dylib"
+    library_freebsd="audiodecoder.nosefart.so"
+    library_windx="audiodecoder.nosefart.dll"
+    library_android="libaudiodecoder.nosefart.so"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Nosefart (NSF) Audio Decoder</summary>
     <description lang="en">Nosefart (NSF) Audio Decoder</description>
