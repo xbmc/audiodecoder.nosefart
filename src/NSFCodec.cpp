@@ -21,14 +21,14 @@
 #include <algorithm>
 #include <string>
 
-#include "kodi/libXBMC_addon.h"
+#include "libXBMC_addon.h"
 
 extern "C" {
 #include "types.h"
 #include "log.h"
 #include "version.h"
 #include "machine/nsf.h"
-#include "kodi/kodi_audiodec_dll.h"
+#include "kodi_audiodec_dll.h"
 
 ADDON::CHelper_libXBMC_addon *XBMC           = NULL;
 
