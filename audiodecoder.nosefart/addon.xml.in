@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="audiodecoder.nosefart"
-  version="1.0.1"
+  version="1.0.2"
   name="Nosefart Audio Decoder"
   provider-name="spiff">
   <requires>
@@ -13,14 +13,10 @@
     tags="true"
     tracks="true"
     extension=".nsf|.nsfstream"
-    library_linux="audiodecoder.nosefart.so"
-    library_osx="audiodecoder.nosefart.dylib"
-    library_freebsd="audiodecoder.nosefart.so"
-    library_windx="audiodecoder.nosefart.dll"
-    library_android="libaudiodecoder.nosefart.so"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Nosefart (NSF) Audio Decoder</summary>
     <description lang="en">Nosefart (NSF) Audio Decoder</description>
-    <platform>all</platform>
+    <platform>@PLATFORM@</platform>
   </extension>
 </addon>
