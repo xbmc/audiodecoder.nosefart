@@ -21,262 +21,213 @@
 #include <algorithm>
 #include <string>
 
-#include "libXBMC_addon.h"
+#include <kodi/addon-instance/AudioDecoder.h>
+#include <kodi/Filesystem.h>
 
 extern "C" {
 #include "types.h"
 #include "log.h"
 #include "version.h"
 #include "machine/nsf.h"
-#include "kodi_audiodec_dll.h"
-
-ADDON::CHelper_libXBMC_addon *XBMC           = NULL;
-
-//-- Create -------------------------------------------------------------------
-// Called on load. Addon should fully initalize or return error status
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_Create(void* hdl, void* props)
-{
-  if (!XBMC)
-    XBMC = new ADDON::CHelper_libXBMC_addon;
-
-  if (!XBMC->RegisterMe(hdl))
-  {
-    delete XBMC, XBMC=NULL;
-    return ADDON_STATUS_PERMANENT_FAILURE;
-  }
-
-  return ADDON_STATUS_OK;
-}
-
-//-- Destroy ------------------------------------------------------------------
-// Do everything before unload of this add-on
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-void ADDON_Destroy()
-{
-  XBMC=NULL;
-}
-
-//-- GetStatus ---------------------------------------------------------------
-// Returns the current Status of this visualisation
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_GetStatus()
-{
-  return ADDON_STATUS_OK;
-}
-
-//-- SetSetting ---------------------------------------------------------------
-// Set a specific Setting value (called from XBMC)
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_SetSetting(const char *strSetting, const void* value)
-{
-  return ADDON_STATUS_OK;
 }
 
 struct NSFContext
 {
-  nsf_t* module;
-  uint8_t* buffer;
+  nsf_t* module = nullptr;
+  uint8_t* buffer = nullptr;
   uint8_t* head;
   size_t len;
   size_t pos;
   size_t track;
 };
 
-#define SET_IF(ptr, value) \
-{ \
-  if ((ptr)) \
-   *(ptr) = (value); \
-}
-
 static nsf_t* LoadNSF(const std::string& toLoad)
 {
   nsf_init();
   log_init();
-  void* file = XBMC->OpenFile(toLoad.c_str(),0);
-  if (!file)
-    return NULL;
+  kodi::vfs::CFile file;
+  if (!file.OpenFile(toLoad, 0))
+    return nullptr;
 
-  int len = XBMC->GetFileLength(file);
+  int len = file.GetLength();
   char *data = new char[len];
   if (!data)
   {
-    XBMC->CloseFile(file);
-    return NULL;
+    file.Close();
+    return nullptr;
   }
-  XBMC->ReadFile(file, data, len);
-  XBMC->CloseFile(file);
+  file.Read(data, len);
+  file.Close();
 
   // Now load the module
-  nsf_t* result = nsf_load(NULL,data,len);
+  nsf_t* result = nsf_load(nullptr,data,len);
   delete[] data;
 
   return result;
 }
 
-void* Init(const char* strFile, unsigned int filecache, int* channels,
-           int* samplerate, int* bitspersample, int64_t* totaltime,
-           int* bitrate, AEDataFormat* format, const AEChannel** channelinfo)
+class CNSFCodec : public kodi::addon::CInstanceAudioDecoder,
+                  public kodi::addon::CAddonBase
 {
-  if (!strFile)
-    return NULL;
+public:
+  CNSFCodec(KODI_HANDLE instance) :
+    CInstanceAudioDecoder(instance) {}
 
-  int track=0;
-  std::string toLoad(strFile);
-  if (toLoad.find(".nsfstream") != std::string::npos)
+  virtual ~CNSFCodec()
   {
-    size_t iStart=toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size()-iStart-10).c_str());
-    //  The directory we are in, is the file
-    //  that contains the bitstream to play,
-    //  so extract it
-    size_t slash = toLoad.rfind('\\');
-    if (slash == std::string::npos)
-      slash = toLoad.rfind('/');
-    toLoad = toLoad.substr(0, slash);
+    if (ctx.module)
+      nsf_free(&ctx.module);
+    delete[] ctx.buffer;
   }
 
-  NSFContext* result = new NSFContext;
-  if (!result)
-    return NULL;
-
-  result->module = LoadNSF(toLoad);
-
-  if (!result->module)
+  virtual bool Init(const std::string& filename, unsigned int filecache,
+                    int& channels, int& samplerate,
+                    int& bitspersample, int64_t& totaltime,
+                    int& bitrate, AEDataFormat& format,
+                    std::vector<AEChannel>& channellist) override
   {
-    delete result;
-    return NULL;
-  }
-
-  nsf_playtrack(result->module, track, 48000, 16, false);
-  for (int i = 0; i < 6; i++)
-    nsf_setchan(result->module,i,true);
-
-  result->head = result->buffer = new uint8_t[2*48000/result->module->playback_rate];
-  if (!result->buffer)
-  {
-    delete result;
-    return NULL;
-  }
-  result->len = result->pos = 0;
-  result->track = track;
-
-  SET_IF(channels, 1)
-  SET_IF(samplerate, 48000)
-  SET_IF(bitspersample, 16)
-  SET_IF(totaltime, 4*60*1000)
-  SET_IF(format, AE_FMT_S16NE)
-  SET_IF(bitrate, 0)
-  static enum AEChannel map[2] = {
-    AE_CH_FC, AE_CH_NULL
-  };
-  SET_IF(channelinfo, map)
-
-
-  return result;
-}
-
-int ReadPCM(void* context, uint8_t* pBuffer, int size, int *actualsize)
-{
-  if (!context || !pBuffer || !actualsize)
-    return 1;
-
-  NSFContext* ctx = (NSFContext*)context;
-
-  *actualsize = 0;
-  while (size)
-  {
-    if (!ctx->len)
+    int track=0;
+    std::string toLoad(filename);
+    if (toLoad.find(".nsfstream") != std::string::npos)
     {
-      nsf_frame(ctx->module);
-      ctx->module->process(ctx->buffer, 48000/ctx->module->playback_rate);
-      ctx->len = 2*48000/ctx->module->playback_rate;
-      ctx->head = ctx->buffer;
+      size_t iStart=toLoad.rfind('-') + 1;
+      track = atoi(toLoad.substr(iStart, toLoad.size()-iStart-10).c_str());
+      //  The directory we are in, is the file
+      //  that contains the bitstream to play,
+      //  so extract it
+      size_t slash = toLoad.rfind('\\');
+      if (slash == std::string::npos)
+        slash = toLoad.rfind('/');
+      toLoad = toLoad.substr(0, slash);
     }
-    size_t tocopy = std::min(ctx->len, size_t(size));
-    memcpy(pBuffer, ctx->head, tocopy);
-    ctx->head += tocopy;
-    ctx->len -= tocopy;
-    ctx->pos += tocopy;
-    *actualsize += tocopy;
-    pBuffer += tocopy;
-    size -= tocopy;
-  }
 
-  return size != 0;
-}
+    ctx.module = LoadNSF(toLoad);
 
-int64_t Seek(void* context, int64_t time)
-{
-  if (!context)
-    return 1;
+    if (!ctx.module)
+    {
+      return false;
+    }
 
-  NSFContext* ctx = (NSFContext*)context;
-  if (ctx->pos > time/1000*48000*2)
-  {
-    ctx->pos = 0;
-    ctx->len = 0;
-  }
-  while (ctx->pos+2*48000/ctx->module->playback_rate < time/1000*48000*2)
-  {
-    nsf_frame(ctx->module);
-    ctx->pos += 2*48000/ctx->module->playback_rate;
-  }
+    nsf_playtrack(ctx.module, track, 48000, 16, false);
+    for (int i = 0; i < 6; i++)
+      nsf_setchan(ctx.module,i,true);
 
-  ctx->module->process(ctx->buffer, 2*48000/ctx->module->playback_rate);
-  ctx->len = 2*48000/ctx->module->playback_rate-(time/1000*48000*2-ctx->pos);
-  ctx->head = ctx->buffer+2*48000/ctx->module->playback_rate-ctx->len;
-  ctx->pos += ctx->head-ctx->buffer;
+    ctx.head = ctx.buffer = new uint8_t[2*48000/ctx.module->playback_rate];
+    if (!ctx.buffer)
+    {
+      nsf_free(&ctx.module);
+      return false;
+    }
+    ctx.len = ctx.pos = 0;
+    ctx.track = track;
 
-  return time;
-}
-
-bool DeInit(void* context)
-{
-  if (!context)
-    return 1;
-
-  NSFContext* ctx = (NSFContext*)context;
-  nsf_free(&ctx->module);
-  delete ctx->buffer;
-  delete ctx;
-
-  return true;
-}
-
-bool ReadTag(const char* strFile, char* title, char* artist,
-             int* length)
-{
-  if (!strFile || !title || !artist || !length)
-    return false;
-
-  nsf_t*  module = LoadNSF(strFile);
-  if (module)
-  {
-    strcpy(title, (const char*)module->song_name);
-    strcpy(artist, (const char*)module->artist_name);
-    *length = 4*60;
-    nsf_free(&module);
-
+    channels = 1;
+    samplerate = 48000;
+    bitspersample = 16;
+    totaltime = 4*60*1000;
+    format = AE_FMT_S16NE;
+    bitrate = 0;
+    channellist = { AE_CH_FC };
     return true;
   }
 
-  return false;
-}
-
-int TrackCount(const char* strFile)
-{
-  nsf_t* module = LoadNSF(strFile);
-  int result=0;
-  if (module)
+  virtual int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
   {
-    result = module->num_songs;
-    nsf_free(&module);
+    if (!buffer)
+      return 1;
+
+    actualsize = 0;
+    while (size)
+    {
+      if (!ctx.len)
+      {
+        nsf_frame(ctx.module);
+        ctx.module->process(ctx.buffer, 48000/ctx.module->playback_rate);
+        ctx.len = 2*48000/ctx.module->playback_rate;
+        ctx.head = ctx.buffer;
+      }
+      size_t tocopy = std::min(ctx.len, size_t(size));
+      memcpy(buffer, ctx.head, tocopy);
+      ctx.head += tocopy;
+      ctx.len -= tocopy;
+      ctx.pos += tocopy;
+      actualsize += tocopy;
+      buffer += tocopy;
+      size -= tocopy;
+    }
+
+    return size != 0;
   }
 
-  return result;
-}
-}
+  virtual int64_t Seek(int64_t time) override
+  {
+    if (ctx.pos > time/1000*48000*2)
+    {
+      ctx.pos = 0;
+      ctx.len = 0;
+    }
+    while (ctx.pos+2*48000/ctx.module->playback_rate < time/1000*48000*2)
+    {
+      nsf_frame(ctx.module);
+      ctx.pos += 2*48000/ctx.module->playback_rate;
+    }
+
+    ctx.module->process(ctx.buffer, 2*48000/ctx.module->playback_rate);
+    ctx.len = 2*48000/ctx.module->playback_rate-(time/1000*48000*2-ctx.pos);
+    ctx.head = ctx.buffer+2*48000/ctx.module->playback_rate-ctx.len;
+    ctx.pos += ctx.head-ctx.buffer;
+
+    return time;
+  }
+
+  virtual bool ReadTag(const std::string& file, std::string& title,
+                       std::string& artist, int& length) override
+  {
+    nsf_t*  module = LoadNSF(file);
+    if (module)
+    {
+      title = (const char*)module->song_name;
+      artist = (const char*)module->artist_name;
+      length = 4*60;
+      nsf_free(&module);
+
+      return true;
+    }
+
+    return false;
+  }
+
+  virtual int TrackCount(const std::string& fileName) override
+  {
+    nsf_t* module = LoadNSF(fileName);
+    int result=0;
+    if (module)
+    {
+      result = module->num_songs;
+      nsf_free(&module);
+    }
+
+    return result;
+  }
+
+private:
+  NSFContext ctx;
+};
+
+
+class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
+{
+public:
+  CMyAddon() { }
+  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  {
+    addonInstance = new CNSFCodec(instance);
+    return ADDON_STATUS_OK;
+  }
+  virtual ~CMyAddon()
+  {
+  }
+};
+
+
+ADDONCREATOR(CMyAddon);

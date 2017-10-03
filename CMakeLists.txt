@@ -14,7 +14,7 @@ add_subdirectory(lib/nosefart)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR}
+                    ${KODI_INCLUDE_DIR}/..
                     ${PROJECT_SOURCE_DIR}/lib/nosefart/src)
 
 set(NOSEFART_SOURCES src/NSFCodec.cpp)
