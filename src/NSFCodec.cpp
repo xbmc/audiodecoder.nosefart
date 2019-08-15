@@ -66,8 +66,7 @@ static nsf_t* LoadNSF(const std::string& toLoad)
   return result;
 }
 
-class CNSFCodec : public kodi::addon::CInstanceAudioDecoder,
-                  public kodi::addon::CAddonBase
+class ATTRIBUTE_HIDDEN CNSFCodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
   CNSFCodec(KODI_HANDLE instance) :
