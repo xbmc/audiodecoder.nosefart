@@ -79,11 +79,11 @@ public:
     delete[] ctx.buffer;
   }
 
-  virtual bool Init(const std::string& filename, unsigned int filecache,
-                    int& channels, int& samplerate,
-                    int& bitspersample, int64_t& totaltime,
-                    int& bitrate, AEDataFormat& format,
-                    std::vector<AEChannel>& channellist) override
+  bool Init(const std::string& filename, unsigned int filecache,
+            int& channels, int& samplerate,
+            int& bitspersample, int64_t& totaltime,
+            int& bitrate, AEDataFormat& format,
+            std::vector<AEChannel>& channellist) override
   {
     int track=0;
     std::string toLoad(filename);
@@ -130,7 +130,7 @@ public:
     return true;
   }
 
-  virtual int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
+  int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
   {
     if (!buffer)
       return 1;
@@ -158,7 +158,7 @@ public:
     return size != 0;
   }
 
-  virtual int64_t Seek(int64_t time) override
+  int64_t Seek(int64_t time) override
   {
     if (ctx.pos > time/1000*48000*2)
     {
@@ -179,10 +179,10 @@ public:
     return time;
   }
 
-  virtual bool ReadTag(const std::string& file, std::string& title,
-                       std::string& artist, int& length) override
+  bool ReadTag(const std::string& file, std::string& title,
+               std::string& artist, int& length) override
   {
-    nsf_t*  module = LoadNSF(file);
+    nsf_t* module = LoadNSF(file);
     if (module)
     {
       title = (const char*)module->song_name;
@@ -196,7 +196,7 @@ public:
     return false;
   }
 
-  virtual int TrackCount(const std::string& fileName) override
+  int TrackCount(const std::string& fileName) override
   {
     nsf_t* module = LoadNSF(fileName);
     int result=0;
@@ -217,15 +217,13 @@ private:
 class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
-  CMyAddon() { }
-  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  CMyAddon() = default;
+  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
   {
     addonInstance = new CNSFCodec(instance);
     return ADDON_STATUS_OK;
   }
-  virtual ~CMyAddon()
-  {
-  }
+  virtual ~CMyAddon() = default;
 };
 
 
