@@ -20,10 +20,10 @@
 ** vrcvisnd.c
 **
 ** VRCVI sound hardware emulation
-** $Id: vrcvisnd.c,v 1.9 2000/07/04 04:51:41 matt Exp $
+** $Id: vrcvisnd.c,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
-#include "../types.h"
+#include "types.h"
 #include "vrcvisnd.h"
 #include "nes_apu.h"
 
@@ -183,6 +183,9 @@ apuext_t vrcvi_ext =
 
 /*
 ** $Log: vrcvisnd.c,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.9  2000/07/04 04:51:41  matt
 ** cleanups
 **
@@ -202,4 +205,3 @@ apuext_t vrcvi_ext =
 ** initial revision
 **
 */
-

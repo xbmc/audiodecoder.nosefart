@@ -20,7 +20,7 @@
 ** vrcvisnd.h
 **
 ** VRCVI (Konami MMC) sound hardware emulation header
-** $Id: vrcvisnd.h,v 1.7 2000/06/20 04:06:16 matt Exp $
+** $Id: vrcvisnd.h,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
 #ifndef _VRCVISND_H_
@@ -64,6 +64,9 @@ extern apuext_t vrcvi_ext;
 
 /*
 ** $Log: vrcvisnd.h,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.7  2000/06/20 04:06:16  matt
 ** migrated external sound definition to apu module
 **
@@ -77,4 +80,3 @@ extern apuext_t vrcvi_ext;
 ** initial revision
 **
 */
-
