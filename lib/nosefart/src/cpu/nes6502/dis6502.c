@@ -20,11 +20,11 @@
 ** dis6502.c
 **
 ** 6502 disassembler based on code from John Saeger
-** $Id: dis6502.c,v 1.4 2000/06/09 15:12:25 matt Exp $
+** $Id: dis6502.c,v 1.1 2003/04/08 20:53:00 ben Exp $
 */
 
-#include "../../types.h"
-#include "../../log.h"
+#include "types.h"
+#include "log.h"
 #include "nes6502.h"
 #include "dis6502.h"
 
@@ -462,8 +462,10 @@ void nes6502_disasm(uint32 PC, uint8 P, uint8 A, uint8 X, uint8 Y, uint8 S)
 
 /*
 ** $Log: dis6502.c,v $
+** Revision 1.1  2003/04/08 20:53:00  ben
+** Adding more files...
+**
 ** Revision 1.4  2000/06/09 15:12:25  matt
 ** initial revision
 **
 */
-

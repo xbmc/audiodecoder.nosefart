@@ -20,11 +20,11 @@
 ** mmc5_snd.c
 **
 ** Nintendo MMC5 sound emulation
-** $Id: mmc5_snd.c,v 1.6 2000/07/04 04:51:41 matt Exp $
+** $Id: mmc5_snd.c,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
 #include <string.h>
-#include "../types.h"
+#include "types.h"
 #include "mmc5_snd.h"
 #include "nes_apu.h"
 
@@ -333,6 +333,9 @@ apuext_t mmc5_ext =
 
 /*
 ** $Log: mmc5_snd.c,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.6  2000/07/04 04:51:41  matt
 ** cleanups
 **
@@ -352,4 +355,3 @@ apuext_t mmc5_ext =
 ** initial revision
 **
 */
-

@@ -20,7 +20,7 @@
 ** dis6502.h
 **
 ** 6502 disassembler header
-** $Id: dis6502.h,v 1.4 2000/06/09 15:12:25 matt Exp $
+** $Id: dis6502.h,v 1.1 2003/04/08 20:53:00 ben Exp $
 */
 
 #ifndef _DIS6502_H_
@@ -40,8 +40,10 @@ extern void nes6502_disasm(uint32 PC, uint8 P, uint8 A, uint8 X, uint8 Y, uint8 
 
 /*
 ** $Log: dis6502.h,v $
+** Revision 1.1  2003/04/08 20:53:00  ben
+** Adding more files...
+**
 ** Revision 1.4  2000/06/09 15:12:25  matt
 ** initial revision
 **
 */
-

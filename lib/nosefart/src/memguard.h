@@ -20,7 +20,7 @@
 ** memguard.h
 **
 ** memory allocation wrapper routines
-** $Id: memguard.h,v 1.5 2000/06/26 04:54:48 matt Exp $
+** $Id: memguard.h,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #ifndef  _MEMGUARD_H_
@@ -54,6 +54,9 @@ extern boolean mem_debug;
 
 /*
 ** $Log: memguard.h,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.5  2000/06/26 04:54:48  matt
 ** simplified and made more robust
 **
@@ -61,4 +64,3 @@ extern boolean mem_debug;
 ** initial revision
 **
 */
-

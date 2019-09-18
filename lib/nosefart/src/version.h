@@ -20,7 +20,7 @@
 ** version.h
 **
 ** Program name / version definitions
-** $Id: version.h,v 1.7 2000/07/04 04:46:55 matt Exp $
+** $Id: version.h,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #ifndef _VERSION_H_
@@ -32,12 +32,15 @@
 #define  APP_STRING     "Nofrendo"
 #endif /* NSF_PLAYER */
 
-#define  APP_VERSION    "1.92"
+#define  APP_VERSION    "2.8-mls"
 
 #endif /* _VERSION_H_ */
 
 /*
 ** $Log: version.h,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.7  2000/07/04 04:46:55  matt
 ** updated version number
 **
@@ -51,4 +54,3 @@
 ** initial revision
 **
 */
-

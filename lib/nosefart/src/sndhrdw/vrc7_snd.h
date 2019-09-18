@@ -22,7 +22,7 @@
 ** VRCVII (Konami MMC) sound hardware emulation header
 ** Thanks to Charles MacDonald (cgfm2@hooked.net) for donating code.
 **
-** $Id: vrc7_snd.h,v 1.3 2000/07/04 04:51:02 matt Exp $
+** $Id: vrc7_snd.h,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
 #ifndef _VRC7_SND_H_
@@ -55,6 +55,9 @@ extern apuext_t vrc7_ext;
 
 /*
 ** $Log: vrc7_snd.h,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.3  2000/07/04 04:51:02  matt
 ** made data types stricter
 **
@@ -65,3 +68,4 @@ extern apuext_t vrc7_ext;
 ** initial revision
 **
 */
+

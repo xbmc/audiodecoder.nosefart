@@ -20,7 +20,7 @@
 ** fds_snd.h
 **
 ** Famicom Disk System sound emulation
-** $Id: fds_snd.h,v 1.2 2000/06/20 04:06:16 matt Exp $
+** $Id: fds_snd.h,v 1.1 2003/04/08 20:53:00 ben Exp $
 */
 
 #ifndef _FDS_SND_H_
@@ -35,6 +35,9 @@ extern apuext_t fds_ext;
 
 /*
 ** $Log: fds_snd.h,v $
+** Revision 1.1  2003/04/08 20:53:00  ben
+** Adding more files...
+**
 ** Revision 1.2  2000/06/20 04:06:16  matt
 ** migrated external sound definition to apu module
 **
@@ -42,4 +45,3 @@ extern apuext_t fds_ext;
 ** initial revision
 **
 */
-

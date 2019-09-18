@@ -20,7 +20,7 @@
 ** log.c
 **
 ** Error logging functions
-** $Id: log.c,v 1.5 2000/06/26 04:55:33 matt Exp $
+** $Id: log.c,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #include <stdio.h>
@@ -103,6 +103,9 @@ void log_printf(const char *format, ... )
 
 /*
 ** $Log: log.c,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.5  2000/06/26 04:55:33  matt
 ** minor change
 **
@@ -110,4 +113,3 @@ void log_printf(const char *format, ... )
 ** initial revision
 **
 */
-
