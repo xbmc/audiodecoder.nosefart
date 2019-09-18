@@ -44,7 +44,7 @@
 static FILE *errorlog;
 #endif
 
-int log_init(void)
+int EXPORT log_init(void)
 {
 #ifdef NOFRENDO_DEBUG
 #ifdef OSD_LOG
@@ -58,7 +58,7 @@ int log_init(void)
    return 0;
 }
 
-void log_shutdown(void)
+void EXPORT log_shutdown(void)
 {
 #ifdef NOFRENDO_DEBUG
    /* Snoop around for unallocated blocks */
@@ -71,7 +71,7 @@ void log_shutdown(void)
 #endif /* NOFRENDO_DEBUG */
 }
 
-void log_print(const char *string)
+void EXPORT log_print(const char *string)
 {
 #ifdef NOFRENDO_DEBUG
 #ifdef OSD_LOG
@@ -82,7 +82,7 @@ void log_print(const char *string)
 #endif /* NOFRENDO_DEBUG */
 }
 
-void log_printf(const char *format, ... )
+void EXPORT log_printf(const char *format, ... )
 {
 #ifdef NOFRENDO_DEBUG
 #ifdef OSD_LOG

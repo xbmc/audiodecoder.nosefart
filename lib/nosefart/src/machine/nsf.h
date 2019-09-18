@@ -30,6 +30,14 @@
 #include "nes6502.h"
 #include "nes_apu.h"
 
+#ifndef EXPORT
+#ifdef WIN32
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+#endif
+
 #define  NSF_MAGIC   "NESM\x1A"
 
 #define  NSF_DEDICATED_PAL       0x01
@@ -132,17 +140,19 @@ struct nsf_loader_t {
 };
 
 /* Function prototypes */
-extern int nsf_init(void);
+extern int EXPORT nsf_init(void);
 
-extern nsf_t * nsf_load_extended(struct nsf_loader_t * loader);
-extern nsf_t *nsf_load(const char *filename, void *source, int length);
-extern void nsf_free(nsf_t **nsf_info);
+extern nsf_t EXPORT *nsf_load_extended(struct nsf_loader_t * loader);
+extern nsf_t EXPORT *nsf_load(const char *filename, void *source, int length);
+extern void EXPORT nsf_free(nsf_t **nsf_info);
 
-extern int nsf_playtrack(nsf_t *nsf, int track, int sample_rate,
-			 int sample_bits, boolean stereo);
-extern void nsf_frame(nsf_t *nsf);
-extern int nsf_setchan(nsf_t *nsf, int chan, boolean enabled);
-extern int nsf_setfilter(nsf_t *nsf, int filter_type);
+extern int EXPORT nsf_playtrack(nsf_t *nsf, int track, int sample_rate,
+                                int sample_bits, boolean stereo);
+extern void EXPORT nsf_frame(nsf_t *nsf);
+extern int EXPORT nsf_setchan(nsf_t *nsf, int chan, boolean enabled);
+extern int EXPORT nsf_setfilter(nsf_t *nsf, int filter_type);
+extern uint8 EXPORT nsf_nes6502_mem_access();
+
 
 #endif /* _NSF_H_ */
 
