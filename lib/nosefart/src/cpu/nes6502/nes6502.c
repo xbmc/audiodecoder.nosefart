@@ -1171,7 +1171,7 @@ static int dma_cycles;
 static uint32 total_cycles = 0;
 
 /* memory region pointers */
-static uint8 *nes6502_banks[NES6502_NUMBANKS];
+static uint8 *nes6502_banks[NES6502_NUMBANKS*2];
 static uint8 *ram = NULL;
 static uint8 *stack_page = NULL;
 
@@ -1181,7 +1181,7 @@ static uint8 *stack_page = NULL;
  */
 #ifdef NES6502_MEM_ACCESS_CTRL
 
-uint8 *acc_nes6502_banks[NES6502_NUMBANKS];
+uint8 *acc_nes6502_banks[NES6502_NUMBANKS*2];
 static uint8 *acc_ram = NULL;
 static uint8 *acc_stack_page = NULL;
 uint8 nes6502_mem_access = 0;
@@ -1192,6 +1192,10 @@ uint8 nes6502_mem_access = 0;
  */
 static void chk_mem_access(uint8 * access, int flags)
 {
+  // Hack fix
+  if (access < 0x10000)
+    return;
+
   uint8 oldchk = * access;
   if ((oldchk&flags) != flags) {
     nes6502_mem_access |= flags;
@@ -1491,11 +1495,11 @@ uint32 nes6502_getcycles(boolean reset_flag)
 int nes6502_execute(int remaining_cycles)
 {
    int instruction_cycles, old_cycles = total_cycles;
-   uint32 temp, addr; /* for macros */
-   uint32 PC;
-   uint8 A, X, Y, P, S;
-   uint8 opcode, data;
-   uint8 btemp, baddr; /* for macros */
+   uint32 temp, addr = 0; /* for macros */
+   uint32 PC = 0;
+   uint8 A, X, Y, P, S = 0;
+   uint8 opcode, data = 0;
+   uint8 btemp, baddr = 0; /* for macros */
 
    GET_GLOBAL_REGS();
 
@@ -2507,6 +2511,9 @@ void nes6502_init(void)
 
    reg_A = reg_X = reg_Y = 0;
    reg_S = 0xFF;                             /* Stack grows down */
+
+   memset(acc_nes6502_banks, 0, NES6502_NUMBANKS);
+   memset(nes6502_banks, 0, NES6502_NUMBANKS);
 }
 
 

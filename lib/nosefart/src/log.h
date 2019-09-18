@@ -28,10 +28,18 @@
 
 #include <stdio.h>
 
-extern int log_init(void);
-extern void log_shutdown(void);
-extern void log_print(const char *string);
-extern void log_printf(const char *format, ...);
+#ifndef EXPORT
+#ifdef WIN32
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+#endif
+
+extern int EXPORT log_init(void);
+extern void EXPORT log_shutdown(void);
+extern void EXPORT log_print(const char *string);
+extern void EXPORT log_printf(const char *format, ...);
 
 #endif /* _LOG_H_ */
 

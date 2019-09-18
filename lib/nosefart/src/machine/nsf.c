@@ -309,7 +309,7 @@ static void nsf_inittune(nsf_t *nsf)
    nes6502_execute((int) NES_FRAME_CYCLES);
 }
 
-void nsf_frame(nsf_t *nsf)
+void EXPORT nsf_frame(nsf_t *nsf)
 {
     // This is how Matthew Conte left it
     //nsf_setcontext(nsf); /* future expansion =) */
@@ -356,14 +356,15 @@ void nes_shutdown(nsf_t *nsf)
    if (nsf->cpu)
    {
       if (nsf->cpu->mem_page[0])
-	{
-	 free(nsf->cpu->mem_page[0]);/*tracks 1 and 2 of lifeforce hang here.*/
-	}
-      for (i = 5; i <= 7; i++) {
-	if (nsf->cpu->mem_page[i])
-	{
-	  free(nsf->cpu->mem_page[i]);
-	}
+      {
+        free(nsf->cpu->mem_page[0]);/*tracks 1 and 2 of lifeforce hang here.*/
+      }
+      for (i = 5; i <= 7; i++)
+      {
+        if (nsf->cpu->mem_page[i])
+        {
+          free(nsf->cpu->mem_page[i]);
+        }
       }
 
 #ifdef NES6502_MEM_ACCESS_CTRL
@@ -382,7 +383,7 @@ void nes_shutdown(nsf_t *nsf)
    }
 }
 
-int nsf_init(void)
+int EXPORT nsf_init(void)
 {
    nes6502_init();
    return 0;
@@ -399,26 +400,26 @@ static int nsf_cpuinit(nsf_t *nsf)
 
    memset(nsf->cpu, 0, sizeof(nes6502_context));
 
-   nsf->cpu->mem_page[0] = malloc(0x800);
+   nsf->cpu->mem_page[0] = malloc(0x800*2); // Hack with *2
    if (NULL == nsf->cpu->mem_page[0])
       return -1;
 
    /* allocate some space for the NSF "player" MMC5 EXRAM, and WRAM */
    for (i = 5; i <= 7; i++)
    {
-      nsf->cpu->mem_page[i] = malloc(0x1000);
+      nsf->cpu->mem_page[i] = malloc(0x1000*2); // Hack with *2
       if (NULL == nsf->cpu->mem_page[i])
          return -1;
    }
 
 #ifdef NES6502_MEM_ACCESS_CTRL
-   nsf->cpu->acc_mem_page[0] = malloc(0x800);
+   nsf->cpu->acc_mem_page[0] = malloc(0x800*2); // Hack with *2
    if (NULL == nsf->cpu->acc_mem_page[0])
       return -1;
    /* allocate some space for the NSF "player" MMC5 EXRAM, and WRAM */
    for (i = 5; i <= 7; i++)
    {
-      nsf->cpu->acc_mem_page[i] = malloc(0x1000);
+      nsf->cpu->acc_mem_page[i] = malloc(0x1000*2); // Hack with *2
       if (NULL == nsf->cpu->acc_mem_page[i])
          return -1;
    }
@@ -663,7 +664,7 @@ static struct nsf_mem_loader_t nsf_mem_loader = {
   0,0,0
 };
 
-nsf_t * nsf_load_extended(struct nsf_loader_t * loader)
+nsf_t EXPORT *nsf_load_extended(struct nsf_loader_t * loader)
 {
   nsf_t *temp_nsf = 0;
   int length;
@@ -894,7 +895,7 @@ nsf_t * nsf_load_extended(struct nsf_loader_t * loader)
 }
 
 /* Load a ROM image into memory */
-nsf_t *nsf_load(const char *filename, void *source, int length)
+nsf_t EXPORT *nsf_load(const char *filename, void *source, int length)
 {
   struct nsf_loader_t * loader = 0;
 
@@ -912,7 +913,7 @@ nsf_t *nsf_load(const char *filename, void *source, int length)
 }
 
 /* Free an NSF */
-void nsf_free(nsf_t **pnsf)
+void EXPORT nsf_free(nsf_t **pnsf)
 {
   nsf_t *nsf;
 
@@ -930,7 +931,7 @@ void nsf_free(nsf_t **pnsf)
       apu_destroy(nsf->apu);
 
     nes_shutdown(nsf);
-    
+
     if (nsf->data)
       free(nsf->data);
 
@@ -941,7 +942,7 @@ void nsf_free(nsf_t **pnsf)
   }
 }
 
-int nsf_setchan(nsf_t *nsf, int chan, boolean enabled)
+int EXPORT nsf_setchan(nsf_t *nsf, int chan, boolean enabled)
 {
    if (!nsf)
      return -1;
@@ -950,7 +951,7 @@ int nsf_setchan(nsf_t *nsf, int chan, boolean enabled)
    return apu_setchan(chan, enabled);
 }
 
-int nsf_playtrack(nsf_t *nsf, int track, int sample_rate, int sample_bits,
+int EXPORT nsf_playtrack(nsf_t *nsf, int track, int sample_rate, int sample_bits,
 		  boolean stereo)
 {
   if (!nsf) {
@@ -999,13 +1000,18 @@ int nsf_playtrack(nsf_t *nsf, int track, int sample_rate, int sample_bits,
   return nsf->current_song;
 }
 
-int nsf_setfilter(nsf_t *nsf, int filter_type)
+int EXPORT nsf_setfilter(nsf_t *nsf, int filter_type)
 {
   if (!nsf) {
     return -1;
   }
   nsf_setcontext(nsf);
   return apu_setfilter(filter_type);
+}
+
+uint8 EXPORT nsf_nes6502_mem_access()
+{
+  return nes6502_mem_access;
 }
 
 /*

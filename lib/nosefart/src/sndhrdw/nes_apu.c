@@ -304,7 +304,8 @@ static int32 apu_rectangle(rectangle_t *chan)
    }
 
 #ifdef APU_OVERSAMPLE
-   chan->output_vol = total / num_times;
+   if (num_times)
+     chan->output_vol = total / num_times;
 #else
    if (chan->fixed_envelope)
       output = chan->volume << 8; /* fixed volume */
@@ -477,7 +478,8 @@ static int32 apu_noise(noise_t *chan)
    }
 
 #ifdef APU_OVERSAMPLE
-   chan->output_vol = total / num_times;
+   if (num_times)
+     chan->output_vol = total / num_times;
 #else
    if (chan->fixed_envelope)
       outvol = chan->volume << 8; /* fixed volume */
@@ -980,6 +982,7 @@ void apu_process(void *buffer, int num_samples)
    uint32 elapsed_cycles;
    static int32 prev_sample = 0;
    int32 next_sample, accum;
+   char* foo = (char*)buffer;
 
    ASSERT(apu);
 
@@ -1035,12 +1038,12 @@ void apu_process(void *buffer, int num_samples)
 
       /* signed 16-bit output, unsigned 8-bit */
       if (16 == apu->sample_bits) {
-         *(int16 *)(buffer) = (int16) accum;
-         buffer += sizeof(int16);
+         *(int16 *)(foo) = (int16) accum;
+         foo += 2;
       }
       else {
-         *(uint8 *)(buffer) = (accum >> 8) ^ 0x80;
-         buffer += sizeof(uint8);
+         *(uint8 *)(foo) = (accum >> 8) ^ 0x80;
+         foo++;
       }
    }
 
