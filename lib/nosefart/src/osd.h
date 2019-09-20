@@ -20,7 +20,7 @@
 ** osd.h
 **
 ** O/S dependent routine defintions (must be customized)
-** $Id: osd.h,v 1.7 2000/07/04 04:45:33 matt Exp $
+** $Id: osd.h,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #ifndef _OSD_H_
@@ -79,6 +79,9 @@ extern void osd_shutdown(void);
 
 /*
 ** $Log: osd.h,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.7  2000/07/04 04:45:33  matt
 ** moved INLINE define into types.h
 **
@@ -89,3 +92,4 @@ extern void osd_shutdown(void);
 ** initial revision
 **
 */
+

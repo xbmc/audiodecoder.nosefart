@@ -22,7 +22,7 @@
 ** memory allocation wrapper routines
 **
 ** NOTE: based on code (c) 1998 the Retrocade group
-** $Id: memguard.c,v 1.8 2000/06/26 04:54:48 matt Exp $
+** $Id: memguard.c,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #include "types.h"
@@ -32,7 +32,6 @@
 #undef free
 
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "memguard.h"
 #include "log.h"
@@ -272,7 +271,7 @@ void _my_free(void **data)
    char fail[256];
 
    if (NULL == data || NULL == *data
-       || (unsigned long)-1 == (unsigned long) *data || (unsigned long)-1 == (unsigned long) data)
+       || 0xFFFFFFFF == (uint32) *data || 0xFFFFFFFF == (uint32) data)
    {
 #ifdef NOFRENDO_DEBUG
       sprintf(fail, "free: attempted to free NULL pointer at line %d of %s\n",
@@ -364,6 +363,9 @@ void mem_checkblocks(void)
 
 /*
 ** $Log: memguard.c,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.8  2000/06/26 04:54:48  matt
 ** simplified and made more robust
 **
@@ -374,4 +376,3 @@ void mem_checkblocks(void)
 ** initial revision
 **
 */
-

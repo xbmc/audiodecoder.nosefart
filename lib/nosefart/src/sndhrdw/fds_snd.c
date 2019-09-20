@@ -20,10 +20,10 @@
 ** fds_snd.c
 **
 ** Famicom Disk System sound emulation
-** $Id: fds_snd.c,v 1.3 2000/07/03 02:18:53 matt Exp $
+** $Id: fds_snd.c,v 1.1 2003/04/08 20:53:00 ben Exp $
 */
 
-#include "../types.h"
+#include "types.h"
 #include "nes_apu.h"
 #include "fds_snd.h"
 
@@ -76,6 +76,9 @@ apuext_t fds_ext =
 
 /*
 ** $Log: fds_snd.c,v $
+** Revision 1.1  2003/04/08 20:53:00  ben
+** Adding more files...
+**
 ** Revision 1.3  2000/07/03 02:18:53  matt
 ** much better external module exporting
 **
@@ -86,4 +89,3 @@ apuext_t fds_ext =
 ** initial revision
 **
 */
-

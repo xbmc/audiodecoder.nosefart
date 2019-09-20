@@ -21,11 +21,11 @@
 **
 ** VRCVII sound hardware emulation
 ** Thanks to Charles MacDonald (cgfm2@hooked.net) for donating code.
-** $Id: vrc7_snd.c,v 1.5 2000/07/04 04:51:02 matt Exp $
+** $Id: vrc7_snd.c,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
 #include <stdio.h>
-#include "../types.h"
+#include "types.h"
 #include "vrc7_snd.h"
 #include "fmopl.h"
 
@@ -323,6 +323,9 @@ apuext_t vrc7_ext =
 
 /*
 ** $Log: vrc7_snd.c,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.5  2000/07/04 04:51:02  matt
 ** made data types stricter
 **
@@ -339,4 +342,3 @@ apuext_t vrc7_ext =
 ** initial revision
 **
 */
-
