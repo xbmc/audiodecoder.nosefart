@@ -20,16 +20,17 @@
 ** nes_apu.c
 **
 ** NES APU emulation
-** $Id: nes_apu.c,v 1.19 2000/07/04 04:53:26 matt Exp $
+** $Id: nes_apu.c,v 1.2 2003/04/09 14:50:32 ben Exp $
 */
+
 #include <string.h>
-#include "../types.h"
-#include "../log.h"
+#include "types.h"
+#include "log.h"
 #include "nes_apu.h"
-#include "../cpu/nes6502/nes6502.h"
+#include "nes6502.h"
 
 #ifdef NSF_PLAYER
-#include "../machine/nsf.h"
+#include "nsf.h"
 #else
 #include "nes.h"
 #include "nes_ppu.h"
@@ -56,6 +57,11 @@ static int8 noise_long_lut[APU_NOISE_32K];
 static int8 noise_short_lut[APU_NOISE_93];
 #endif /* !REALTIME_NOISE */
 
+/* $$$ ben : last error */
+#define SET_APU_ERROR(APU,X) \
+if (APU) (APU)->errstr = "apu: " X; else
+
+#define APU_MIX_ENABLE(BIT) (apu->mix_enable&(1<<(BIT)))
 
 /* vblank length table used for rectangles, triangle, noise */
 static const uint8 vbl_length[32] =
@@ -105,23 +111,28 @@ static const int duty_lut[4] = { 2, 4, 8, 12 };
 void apu_setcontext(apu_t *src_apu)
 {
    apu = src_apu;
+   /* $$$ ben reset eoor string here. */
+   SET_APU_ERROR(apu,"no error");
 }
-
 
 /*
 ** Simple queue routines
 */
 #define  APU_QEMPTY()   (apu->q_head == apu->q_tail)
 
-static void apu_enqueue(apudata_t *d)
+static int apu_enqueue(apudata_t *d)
 {
    ASSERT(apu);
    apu->queue[apu->q_head] = *d;
 
    apu->q_head = (apu->q_head + 1) & APUQUEUE_MASK;
 
-   if (APU_QEMPTY())
+   if (APU_QEMPTY()) {
       log_printf("apu: queue overflow\n");      
+      SET_APU_ERROR(apu,"queue overflow");
+      return -1;
+   }
+   return 0;
 }
 
 static apudata_t *apu_dequeue(void)
@@ -130,19 +141,32 @@ static apudata_t *apu_dequeue(void)
 
    ASSERT(apu);
 
-   if (APU_QEMPTY())
-      log_printf("apu: queue empty\n");
-
+   if (APU_QEMPTY()) {
+     log_printf("apu: queue empty\n");
+     SET_APU_ERROR(apu,"queue empty");
+     /* $$$ ben : should return 0 ??? */
+   }
    loc = apu->q_tail;
    apu->q_tail = (apu->q_tail + 1) & APUQUEUE_MASK;
 
    return &apu->queue[loc];
 }
 
-void apu_setchan(int chan, boolean enabled)
+int apu_setchan(int chan, boolean enabled)
 {
-   ASSERT(apu);
-   apu->mix_enable[chan] = enabled;
+  const unsigned int max = 6;
+  int old;
+
+  ASSERT(apu);
+  if ((unsigned int)chan >= max) {
+    SET_APU_ERROR(apu,"channel out of range");
+    return -1;
+  }
+  old = (apu->mix_enable>>chan) & 1;
+  if (enabled != (boolean)-1) {
+    apu->mix_enable = (apu->mix_enable & ~(1<<chan)) | ((!!enabled)<<chan);
+  }
+  return old;
 }
 
 /* emulation of the 15-bit shift register the
@@ -280,7 +304,8 @@ static int32 apu_rectangle(rectangle_t *chan)
    }
 
 #ifdef APU_OVERSAMPLE
-   chan->output_vol = total / num_times;
+   if (num_times)
+     chan->output_vol = total / num_times;
 #else
    if (chan->fixed_envelope)
       output = chan->volume << 8; /* fixed volume */
@@ -453,7 +478,8 @@ static int32 apu_noise(noise_t *chan)
    }
 
 #ifdef APU_OVERSAMPLE
-   chan->output_vol = total / num_times;
+   if (num_times)
+     chan->output_vol = total / num_times;
 #else
    if (chan->fixed_envelope)
       outvol = chan->volume << 8; /* fixed volume */
@@ -964,7 +990,7 @@ void apu_process(void *buffer, int num_samples)
    elapsed_cycles = (uint32) apu->elapsed_cycles;
 
    /* BLEH */
-   apu->buffer = buffer;
+   apu->buffer = buffer; 
 
    while (num_samples--)
    {
@@ -977,13 +1003,13 @@ void apu_process(void *buffer, int num_samples)
       elapsed_cycles += APU_FROM_FIXED(apu->cycle_rate);
 
       accum = 0;
-      if (apu->mix_enable[0]) accum += apu_rectangle(&apu->rectangle[0]);
-      if (apu->mix_enable[1]) accum += apu_rectangle(&apu->rectangle[1]);
-      if (apu->mix_enable[2]) accum += apu_triangle(&apu->triangle);
-      if (apu->mix_enable[3]) accum += apu_noise(&apu->noise);
-      if (apu->mix_enable[4]) accum += apu_dmc(&apu->dmc);
+      if (APU_MIX_ENABLE(0)) accum += apu_rectangle(&apu->rectangle[0]);
+      if (APU_MIX_ENABLE(1)) accum += apu_rectangle(&apu->rectangle[1]);
+      if (APU_MIX_ENABLE(2)) accum += apu_triangle(&apu->triangle);
+      if (APU_MIX_ENABLE(3)) accum += apu_noise(&apu->noise);
+      if (APU_MIX_ENABLE(4)) accum += apu_dmc(&apu->dmc);
 
-      if (apu->ext && apu->mix_enable[5]) accum += apu->ext->process();
+      if (apu->ext && APU_MIX_ENABLE(5)) accum += apu->ext->process();
 
       /* do any filtering */
       if (APU_FILTER_NONE != apu->filter_type)
@@ -1012,13 +1038,13 @@ void apu_process(void *buffer, int num_samples)
 
       /* signed 16-bit output, unsigned 8-bit */
       if (16 == apu->sample_bits) {
-         *((int16 *) foo) = (int16) accum;
-		foo += 2;	
-	  }
+         *(int16 *)(foo) = (int16) accum;
+         foo += 2;
+      }
       else {
-         *((uint8 *) foo) = (accum >> 8) ^ 0x80;
-		foo++;
-	  }
+         *(uint8 *)(foo) = (accum >> 8) ^ 0x80;
+         foo++;
+      }
    }
 
    /* resync cycle counter */
@@ -1026,10 +1052,18 @@ void apu_process(void *buffer, int num_samples)
 }
 
 /* set the filter type */
-void apu_setfilter(int filter_type)
+/* $$$ ben :
+ * Add a get feature (filter_type == -1) and returns old filter type
+ */
+int apu_setfilter(int filter_type)
 {
+  int old; 
    ASSERT(apu);
-   apu->filter_type = filter_type;
+   old = apu->filter_type;
+   if (filter_type != -1) {
+     apu->filter_type = filter_type;
+   }
+   return old;
 }
 
 void apu_reset(void)
@@ -1091,12 +1125,15 @@ static void apu_setactive(apu_t *active)
 apu_t *apu_create(int sample_rate, int refresh_rate, int sample_bits, boolean stereo)
 {
    apu_t *temp_apu;
-   int channel;
+/*    int channel; */
 
    temp_apu = malloc(sizeof(apu_t));
    if (NULL == temp_apu)
       return NULL;
+   /* $$$ ben : safety net, in case we forgot to init something */
+   memset(temp_apu,0,sizeof(apu_t));
 
+   SET_APU_ERROR(temp_apu,"no error");
    temp_apu->sample_rate = sample_rate;
    temp_apu->refresh_rate = refresh_rate;
    temp_apu->sample_bits = sample_bits;
@@ -1115,8 +1152,9 @@ apu_t *apu_create(int sample_rate, int refresh_rate, int sample_bits, boolean st
    apu_setactive(temp_apu);
    apu_reset();
 
-   for (channel = 0; channel < 6; channel++)
-      apu_setchan(channel, TRUE);
+   temp_apu->mix_enable = 0x3F;
+/*    for (channel = 0; channel < 6; channel++) */
+/*       apu_setchan(channel, TRUE); */
 
    apu_setfilter(APU_FILTER_LOWPASS);
 
@@ -1138,15 +1176,23 @@ void apu_destroy(apu_t *src_apu)
    }
 }
 
-void apu_setext(apu_t *src_apu, apuext_t *ext)
+int apu_setext(apu_t *src_apu, apuext_t *ext)
 {
    ASSERT(src_apu);
+
+   /* $$$ ben : seem cleaner like this */
+   if (src_apu->ext) {
+     src_apu->ext->shutdown();
+   }
 
    src_apu->ext = ext;
 
    /* initialize it */
    if (src_apu->ext)
       src_apu->ext->init();
+
+   /* $$$ ben : May be one day extension int () will return error code */
+   return 0;
 }
 
 /* this exists for external mixing routines */
@@ -1158,6 +1204,12 @@ int32 apu_getcyclerate(void)
 
 /*
 ** $Log: nes_apu.c,v $
+** Revision 1.2  2003/04/09 14:50:32  ben
+** Clean NSF api.
+**
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.19  2000/07/04 04:53:26  matt
 ** minor changes, sound amplification
 **

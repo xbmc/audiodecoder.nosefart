@@ -20,14 +20,17 @@
 ** types.h
 **
 ** Data type definitions
-** $Id: types.h,v 1.7 2000/07/04 04:46:44 matt Exp $
+** $Id: types.h,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
 /* Define this if running on little-endian (x86) systems */
-#define  HOST_LITTLE_ENDIAN
+
+#ifndef DCPLAYA
+# define  HOST_LITTLE_ENDIAN
+#endif
 
 #ifdef __GNUC__
 #define  INLINE      static inline
@@ -38,13 +41,25 @@
 #endif
 
 /* These should be changed depending on the platform */
-typedef  char     int8;
-typedef  short    int16;
-typedef  int      int32;
 
-typedef  unsigned char  uint8;
-typedef  unsigned short uint16;
-typedef  unsigned int   uint32;
+
+
+#ifdef __BEOS__		/* added by Eli Dayan (for compiling under BeOS) */
+	
+	/* use types in the BeOS Support Kit instead */
+	#include <be/support/SupportDefs.h>
+#elif defined (DCPLAYA) /* $$$ added by ben (for compiling with dcplaya) */
+# include <arch/types.h>
+#else	
+	typedef  char     int8;
+	typedef  short    int16;
+	typedef  int      int32;
+
+	typedef  unsigned char  uint8;
+	typedef  unsigned short uint16;
+	typedef  unsigned int   uint32;
+
+#endif
 
 typedef  uint8    boolean;
 
@@ -84,6 +99,9 @@ typedef  uint8    boolean;
 
 /*
 ** $Log: types.h,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.7  2000/07/04 04:46:44  matt
 ** moved INLINE define from osd.h
 **
@@ -91,4 +109,3 @@ typedef  uint8    boolean;
 ** initial revision
 **
 */
-

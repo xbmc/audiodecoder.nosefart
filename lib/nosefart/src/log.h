@@ -20,27 +20,35 @@
 ** log.h
 **
 ** Error logging header file
-** $Id: log.h,v 1.4 2000/06/09 15:12:25 matt Exp $
+** $Id: log.h,v 1.1 2003/04/08 20:46:46 ben Exp $
 */
 
 #ifndef _LOG_H_
 #define _LOG_H_
 
-#ifndef _WIN32
 #include <stdio.h>
+
+#ifndef EXPORT
+#ifdef WIN32
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
 #endif
 
-extern int log_init(void);
-extern void log_shutdown(void);
-extern void log_print(const char *string);
-extern void log_printf(const char *format, ...);
+extern int EXPORT log_init(void);
+extern void EXPORT log_shutdown(void);
+extern void EXPORT log_print(const char *string);
+extern void EXPORT log_printf(const char *format, ...);
 
 #endif /* _LOG_H_ */
 
 /*
 ** $Log: log.h,v $
+** Revision 1.1  2003/04/08 20:46:46  ben
+** add new input for NES music file.
+**
 ** Revision 1.4  2000/06/09 15:12:25  matt
 ** initial revision
 **
 */
-

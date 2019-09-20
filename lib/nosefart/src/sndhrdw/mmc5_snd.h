@@ -20,7 +20,7 @@
 ** mmc5_snd.h
 **
 ** Nintendo MMC5 sound emulation header
-** $Id: mmc5_snd.h,v 1.2 2000/06/20 04:06:16 matt Exp $
+** $Id: mmc5_snd.h,v 1.1 2003/04/08 20:53:01 ben Exp $
 */
 
 #ifndef _MMC5_SND_H_
@@ -67,6 +67,9 @@ extern apuext_t mmc5_ext;
 
 /*
 ** $Log: mmc5_snd.h,v $
+** Revision 1.1  2003/04/08 20:53:01  ben
+** Adding more files...
+**
 ** Revision 1.2  2000/06/20 04:06:16  matt
 ** migrated external sound definition to apu module
 **
@@ -74,4 +77,3 @@ extern apuext_t mmc5_ext;
 ** initial revision
 **
 */
-
