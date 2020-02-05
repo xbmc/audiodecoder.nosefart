@@ -3,7 +3,8 @@
 This is a [Kodi](https://kodi.tv) audio decoder addon for NSF files.
 
 [![Build Status](https://travis-ci.org/xbmc/audiodecoder.nosefart.svg?branch=Matrix)](https://travis-ci.org/xbmc/audiodecoder.nosefart/branches)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.nosefart?branch=Matrix&svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-nosefart?branch=Matrix)
+[![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.audiodecoder.nosefart?branchName=Matrix)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=9&branchName=Matrix)
+<!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.nosefart?branch=Matrix&svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-nosefart?branch=Matrix) -->
 
 ## Build instructions
 
