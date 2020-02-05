@@ -3,7 +3,8 @@
 This is a [Kodi](http://kodi.tv) audio decoder addon for NSF files.
 
 [![Build Status](https://travis-ci.org/xbmc/audiodecoder.nosefart.svg?branch=master)](https://travis-ci.org/xbmc/audiodecoder.nosefart)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.nosefart?svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-nosefart)
+[![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.audiodecoder.nosefart?branchName=Leia)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=9&branchName=Leia)
+<!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.nosefart?svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-nosefart) -->
 
 ## Build instructions
 
