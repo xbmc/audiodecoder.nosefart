@@ -31,10 +31,10 @@ extern "C" {
 }
 
 class ATTRIBUTE_HIDDEN CNSFCodec : public kodi::addon::CInstanceAudioDecoder,
-                                   private CDllHelper
+                                   private kodi::tools::CDllHelper
 {
 public:
-  CNSFCodec(KODI_HANDLE instance);
+  CNSFCodec(KODI_HANDLE instance, const std::string& version);
   virtual ~CNSFCodec();
 
   bool Init(const std::string& filename, unsigned int filecache,
