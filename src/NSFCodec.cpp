@@ -29,18 +29,22 @@ CNSFCodec::~CNSFCodec()
     delete[] m_buffer;
 }
 
-bool CNSFCodec::Init(const std::string& filename, unsigned int filecache,
-                     int& channels, int& samplerate,
-                     int& bitspersample, int64_t& totaltime,
-                     int& bitrate, AudioEngineDataFormat& format,
+bool CNSFCodec::Init(const std::string& filename,
+                     unsigned int filecache,
+                     int& channels,
+                     int& samplerate,
+                     int& bitspersample,
+                     int64_t& totaltime,
+                     int& bitrate,
+                     AudioEngineDataFormat& format,
                      std::vector<AudioEngineChannel>& channellist)
 {
-  int track=0;
+  int track = 0;
   std::string toLoad(filename);
   if (toLoad.find(".nsfstream") != std::string::npos)
   {
-    size_t iStart=toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size()-iStart-10).c_str());
+    size_t iStart = toLoad.rfind('-') + 1;
+    track = atoi(toLoad.substr(iStart, toLoad.size() - iStart - 10).c_str());
     //  The directory we are in, is the file
     //  that contains the bitstream to play,
     //  so extract it
@@ -62,9 +66,9 @@ bool CNSFCodec::Init(const std::string& filename, unsigned int filecache,
 
   nsf_playtrack(m_module, track, 48000, 16, false);
   for (int i = 0; i < 6; i++)
-    nsf_setchan(m_module,i,true);
+    nsf_setchan(m_module, i, true);
 
-  int bufferSize = 2*48000/m_module->playback_rate*2;
+  int bufferSize = 2 * 48000 / m_module->playback_rate * 2;
   m_head = m_buffer = new uint8_t[bufferSize];
   if (!m_buffer)
   {
@@ -77,10 +81,13 @@ bool CNSFCodec::Init(const std::string& filename, unsigned int filecache,
   channels = 1;
   samplerate = 48000;
   bitspersample = 16;
-  totaltime = abs((int)((float)(m_limitFrames + m_module->playback_rate) / (float)m_module->playback_rate) -1) * 1000;
+  totaltime =
+      abs((int)((float)(m_limitFrames + m_module->playback_rate) / (float)m_module->playback_rate) -
+          1) *
+      1000;
   format = AUDIOENGINE_FMT_S16NE;
   bitrate = 0;
-  channellist = { AUDIOENGINE_CH_FC };
+  channellist = {AUDIOENGINE_CH_FC};
   return true;
 }
 
@@ -96,8 +103,8 @@ int CNSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
     {
       m_frames++;
       nsf_frame(m_module);
-      m_module->process(m_buffer, 48000/m_module->playback_rate);
-      m_len = 2*48000/m_module->playback_rate;
+      m_module->process(m_buffer, 48000 / m_module->playback_rate);
+      m_len = 2 * 48000 / m_module->playback_rate;
       m_head = m_buffer;
     }
 
@@ -121,29 +128,29 @@ int CNSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
 
 int64_t CNSFCodec::Seek(int64_t time)
 {
-  if (m_pos > time/1000*48000*2)
+  if (m_pos > time / 1000 * 48000 * 2)
   {
     m_pos = 0;
     m_len = 0;
     m_frames = 0;
   }
-  while (m_module && m_pos+2*48000/m_module->playback_rate < time/1000*48000*2)
+  while (m_module && m_pos + 2 * 48000 / m_module->playback_rate < time / 1000 * 48000 * 2)
   {
     m_frames++;
     nsf_frame(m_module);
-    m_pos += 2*48000/m_module->playback_rate;
+    m_pos += 2 * 48000 / m_module->playback_rate;
   }
 
   if (!m_module || !m_buffer)
     return -1;
 
-  m_module->process(m_buffer, 2*48000/m_module->playback_rate);
+  m_module->process(m_buffer, 2 * 48000 / m_module->playback_rate);
   if (!m_buffer)
     return -1;
 
-  m_len = 2*48000/m_module->playback_rate-(time/1000*48000*2-m_pos);
-  m_head = m_buffer+2*48000/m_module->playback_rate-m_len;
-  m_pos += m_head-m_buffer;
+  m_len = 2 * 48000 / m_module->playback_rate - (time / 1000 * 48000 * 2 - m_pos);
+  m_head = m_buffer + 2 * 48000 / m_module->playback_rate - m_len;
+  m_pos += m_head - m_buffer;
 
   return time;
 }
@@ -171,7 +178,7 @@ bool CNSFCodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderIn
 int CNSFCodec::TrackCount(const std::string& fileName)
 {
   nsf_t* module = LoadNSF(fileName, true);
-  int result=0;
+  int result = 0;
   if (module)
   {
     result = module->num_songs;
@@ -181,7 +188,7 @@ int CNSFCodec::TrackCount(const std::string& fileName)
   return result;
 }
 
-nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag/* = false*/)
+nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag /* = false*/)
 {
   if (!m_dllInited)
   {
@@ -193,23 +200,38 @@ nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag/* = false*/)
     else
     {
       m_usedLib = !m_usedLib;
-      source = kodi::GetAddonPath(LIBRARY_PREFIX + std::string("nosefart_") + std::to_string(m_usedLib) + LIBRARY_SUFFIX);
+      source = kodi::GetAddonPath(LIBRARY_PREFIX + std::string("nosefart_") +
+                                  std::to_string(m_usedLib) + LIBRARY_SUFFIX);
     }
 
-    if (!LoadDll(source)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_init)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_load_extended)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_load)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_free)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_playtrack)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_frame)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_setchan)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_setfilter)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(nsf_nes6502_mem_access)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(log_init)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(log_shutdown)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(log_print)) return nullptr;
-    if (!REGISTER_DLL_SYMBOL(log_printf)) return nullptr;
+    if (!LoadDll(source))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_init))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_load_extended))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_load))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_free))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_playtrack))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_frame))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_setchan))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_setfilter))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(nsf_nes6502_mem_access))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(log_init))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(log_shutdown))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(log_print))
+      return nullptr;
+    if (!REGISTER_DLL_SYMBOL(log_printf))
+      return nullptr;
 
     m_dllInited = true;
 
@@ -222,7 +244,7 @@ nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag/* = false*/)
     return nullptr;
 
   int len = file.GetLength();
-  char *data = new char[len];
+  char* data = new char[len];
   if (!data)
   {
     file.Close();
@@ -232,7 +254,7 @@ nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag/* = false*/)
   file.Close();
 
   // Now load the module
-  nsf_t* result = nsf_load(nullptr,data,len);
+  nsf_t* result = nsf_load(nullptr, data, len);
   delete[] data;
 
   return result;
@@ -310,7 +332,9 @@ unsigned int CNSFCodec::Calctime(int track, unsigned int frame_frag, bool force)
           frame_frag += default_frag_size;
           if (frame_frag >= max_frag)
           {
-            kodi::Log(ADDON_LOG_ERROR, "%s: unable to find end of music within %u frames, giving up!", __func__, max_frag);
+            kodi::Log(ADDON_LOG_ERROR,
+                      "%s: unable to find end of music within %u frames, giving up!", __func__,
+                      max_frag);
             return result1 * 0x1000 + 1000;
           }
         }
@@ -346,12 +370,14 @@ unsigned int CNSFCodec::Calctime(int track, unsigned int frame_frag, bool force)
 
           if (frame_frag >= max_frag)
           {
-            kodi::Log(ADDON_LOG_ERROR, "%s: unable to find end of music within %u frames\n\tgiving up!", __func__, max_frag);
+            kodi::Log(ADDON_LOG_ERROR,
+                      "%s: unable to find end of music within %u frames\n\tgiving up!", __func__,
+                      max_frag);
             return result1 * 0x1000 + 1000;
           }
         }
         else
-	  done = 1;
+          done = 1;
       }
     }
     result2 = last_accessed_frame - starting_frame + 16 /* fudge room */;
@@ -371,7 +397,11 @@ class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(int instanceType,
+                              const std::string& instanceID,
+                              KODI_HANDLE instance,
+                              const std::string& version,
+                              KODI_HANDLE& addonInstance) override
   {
     addonInstance = new CNSFCodec(instance, version);
     return ADDON_STATUS_OK;

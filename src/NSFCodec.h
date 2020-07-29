@@ -23,11 +23,12 @@
 #include <kodi/addon-instance/AudioDecoder.h>
 #include <kodi/tools/DllHelper.h>
 
-extern "C" {
-#include "types.h"
+extern "C"
+{
 #include "log.h"
-#include "version.h"
 #include "machine/nsf.h"
+#include "types.h"
+#include "version.h"
 }
 
 class ATTRIBUTE_HIDDEN CNSFCodec : public kodi::addon::CInstanceAudioDecoder,
@@ -37,10 +38,14 @@ public:
   CNSFCodec(KODI_HANDLE instance, const std::string& version);
   virtual ~CNSFCodec();
 
-  bool Init(const std::string& filename, unsigned int filecache,
-            int& channels, int& samplerate,
-            int& bitspersample, int64_t& totaltime,
-            int& bitrate, AudioEngineDataFormat& format,
+  bool Init(const std::string& filename,
+            unsigned int filecache,
+            int& channels,
+            int& samplerate,
+            int& bitspersample,
+            int64_t& totaltime,
+            int& bitrate,
+            AudioEngineDataFormat& format,
             std::vector<AudioEngineChannel>& channellist) override;
   int ReadPCM(uint8_t* buffer, int size, int& actualsize) override;
   int64_t Seek(int64_t time) override;
@@ -48,7 +53,7 @@ public:
   int TrackCount(const std::string& fileName) override;
 
 private:
-  int GetTime(int repetitions, char * filename, int track)
+  int GetTime(int repetitions, char* filename, int track)
   {
     /* raw result, with intro, without intro */
     int result, wintro, wointro;
@@ -58,12 +63,12 @@ private:
     wintro = result / 0x1000;
     wointro = result % 0x1000;
 
-    return wintro + (repetitions - 1)*wointro;
+    return wintro + (repetitions - 1) * wointro;
   }
 
   int PlaybackRate()
   {
-    uint8_t * p;
+    uint8_t* p;
     unsigned int def, v;
 
     if (m_module->pal_ntsc_bits & NSF_DEDICATED_PAL)
@@ -76,12 +81,12 @@ private:
       p = (uint8_t*)&m_module->ntsc_speed;
       def = 60;
     }
-    v = p[0] | (p[1]<<8);
+    v = p[0] | (p[1] << 8);
     return v ? 1000000 / v : def;
   }
 
   nsf_t* LoadNSF(const std::string& toLoad, bool forTag = false);
-  unsigned int Calctime(int track,  unsigned int frame_frag, bool force);
+  unsigned int Calctime(int track, unsigned int frame_frag, bool force);
 
   nsf_t* m_module = nullptr;
   uint8_t* m_buffer = nullptr;
@@ -99,16 +104,16 @@ private:
 
   int (*nsf_init)(void);
   nsf_t* (*nsf_load_extended)(struct nsf_loader_t* loader);
-  nsf_t* (*nsf_load)(const char *filename, void *source, int length);
-  void (*nsf_free)(nsf_t **nsf_info);
+  nsf_t* (*nsf_load)(const char* filename, void* source, int length);
+  void (*nsf_free)(nsf_t** nsf_info);
   int (*nsf_playtrack)(nsf_t* nsf, int track, int sample_rate, int sample_bits, boolean stereo);
-  void (*nsf_frame)(nsf_t *nsf);
-  int (*nsf_setchan)(nsf_t *nsf, int chan, boolean enabled);
-  int (*nsf_setfilter)(nsf_t *nsf, int filter_type);
+  void (*nsf_frame)(nsf_t* nsf);
+  int (*nsf_setchan)(nsf_t* nsf, int chan, boolean enabled);
+  int (*nsf_setfilter)(nsf_t* nsf, int filter_type);
   uint8 (*nsf_nes6502_mem_access)();
 
   int (*log_init)(void);
   void (*log_shutdown)(void);
-  void (*log_print)(const char *string);
-  void (*log_printf)(const char *format, ...);
+  void (*log_print)(const char* string);
+  void (*log_printf)(const char* format, ...);
 };
