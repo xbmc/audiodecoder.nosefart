@@ -40,12 +40,11 @@ public:
   bool Init(const std::string& filename, unsigned int filecache,
             int& channels, int& samplerate,
             int& bitspersample, int64_t& totaltime,
-            int& bitrate, AEDataFormat& format,
-            std::vector<AEChannel>& channellist) override;
+            int& bitrate, AudioEngineDataFormat& format,
+            std::vector<AudioEngineChannel>& channellist) override;
   int ReadPCM(uint8_t* buffer, int size, int& actualsize) override;
   int64_t Seek(int64_t time) override;
-  bool ReadTag(const std::string& file, std::string& title,
-               std::string& artist, int& length) override;
+  bool ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag) override;
   int TrackCount(const std::string& fileName) override;
 
 private:

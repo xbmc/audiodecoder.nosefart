@@ -32,8 +32,8 @@ CNSFCodec::~CNSFCodec()
 bool CNSFCodec::Init(const std::string& filename, unsigned int filecache,
                      int& channels, int& samplerate,
                      int& bitspersample, int64_t& totaltime,
-                     int& bitrate, AEDataFormat& format,
-                     std::vector<AEChannel>& channellist)
+                     int& bitrate, AudioEngineDataFormat& format,
+                     std::vector<AudioEngineChannel>& channellist)
 {
   int track=0;
   std::string toLoad(filename);
@@ -78,9 +78,9 @@ bool CNSFCodec::Init(const std::string& filename, unsigned int filecache,
   samplerate = 48000;
   bitspersample = 16;
   totaltime = abs((int)((float)(m_limitFrames + m_module->playback_rate) / (float)m_module->playback_rate) -1) * 1000;
-  format = AE_FMT_S16NE;
+  format = AUDIOENGINE_FMT_S16NE;
   bitrate = 0;
-  channellist = { AE_CH_FC };
+  channellist = { AUDIOENGINE_CH_FC };
   return true;
 }
 
@@ -148,19 +148,18 @@ int64_t CNSFCodec::Seek(int64_t time)
   return time;
 }
 
-bool CNSFCodec::ReadTag(const std::string& file, std::string& title,
-                        std::string& artist, int& length)
+bool CNSFCodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag)
 {
-  nsf_t* module = LoadNSF(file, true);
+  nsf_t* module = LoadNSF(filename, true);
   if (module)
   {
-    title = (const char*)module->song_name;
-    if (title == "<?>")
-      title = "";
-    artist = (const char*)module->artist_name;
-    if (artist == "<?>")
-      artist = "";
-    length = 0;
+    tag.SetTitle((const char*)module->song_name);
+    if (tag.GetTitle() == "<?>")
+      tag.SetTitle("");
+    tag.SetArtist((const char*)module->artist_name);
+    if (tag.GetArtist() == "<?>")
+      tag.SetArtist("");
+    tag.SetDuration(0);
     nsf_free(&module);
 
     return true;
