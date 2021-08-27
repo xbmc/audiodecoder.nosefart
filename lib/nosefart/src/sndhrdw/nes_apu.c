@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,8 +21,12 @@
 ** nes_apu.c
 **
 ** NES APU emulation
-** $Id: nes_apu.c,v 1.2 2003/04/09 14:50:32 ben Exp $
+** $Id: nes_apu.c,v 1.4 2005/05/07 09:11:39 valtri Exp $
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <string.h>
 #include "types.h"
@@ -59,7 +64,7 @@ static int8 noise_short_lut[APU_NOISE_93];
 
 /* $$$ ben : last error */
 #define SET_APU_ERROR(APU,X) \
-if (APU) (APU)->errstr = "apu: " X; else
+do {if (APU) (APU)->errstr = "apu: " X;} while (0)
 
 #define APU_MIX_ENABLE(BIT) (apu->mix_enable&(1<<(BIT)))
 
@@ -929,7 +934,7 @@ void apu_write(uint32 address, uint8 value)
    case 0x4015:
       /* bodge for timestamp queue */
       apu->dmc.enabled = (value & 0x10) ? TRUE : FALSE;
-
+        /* fall through */
    case 0x4000: case 0x4001: case 0x4002: case 0x4003:
    case 0x4004: case 0x4005: case 0x4006: case 0x4007:
    case 0x4008: case 0x4009: case 0x400A: case 0x400B:
@@ -982,7 +987,6 @@ void apu_process(void *buffer, int num_samples)
    uint32 elapsed_cycles;
    static int32 prev_sample = 0;
    int32 next_sample, accum;
-   char* foo = (char*)buffer;
 
    ASSERT(apu);
 
@@ -1038,12 +1042,14 @@ void apu_process(void *buffer, int num_samples)
 
       /* signed 16-bit output, unsigned 8-bit */
       if (16 == apu->sample_bits) {
-         *(int16 *)(foo) = (int16) accum;
-         foo += 2;
+         int16 *q = buffer;
+         *q++ = accum;
+         buffer = q;
       }
       else {
-         *(uint8 *)(foo) = (accum >> 8) ^ 0x80;
-         foo++;
+         uint8 *q = buffer;
+         *q++ = (accum >> 8) ^ 0x80;
+         buffer = q;
       }
    }
 
@@ -1127,6 +1133,7 @@ apu_t *apu_create(int sample_rate, int refresh_rate, int sample_bits, boolean st
    apu_t *temp_apu;
 /*    int channel; */
 
+   (void)stereo;
    temp_apu = malloc(sizeof(apu_t));
    if (NULL == temp_apu)
       return NULL;
@@ -1204,11 +1211,18 @@ int32 apu_getcyclerate(void)
 
 /*
 ** $Log: nes_apu.c,v $
-** Revision 1.2  2003/04/09 14:50:32  ben
-** Clean NSF api.
+** Revision 1.4  2005/05/07 09:11:39  valtri
+** *BUGFIX*
+** gcc4 patches from Dams Nadé (livna.org) and Keenan Pepper.
 **
-** Revision 1.1  2003/04/08 20:53:01  ben
-** Adding more files...
+** Revision 1.3  2004/12/12 06:55:59  athp
+** Code cleanups and elimination of some compiler warnings; patch courtesy of AL13N
+**
+** Revision 1.2  2003/08/25 21:51:43  f1rmb
+** Reduce GCC verbosity (various prototype declaration fixes). ffmpeg, wine and fft*post are untouched (fft: for now).
+**
+** Revision 1.1  2003/01/08 07:04:35  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.19  2000/07/04 04:53:26  matt
 ** minor changes, sound amplification

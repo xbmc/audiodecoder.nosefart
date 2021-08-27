@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,9 +21,13 @@
 ** nes6502.c
 **
 ** NES custom 6502 (2A03) CPU implementation
-** $Id: nes6502.c,v 1.2 2003/05/01 22:34:19 benjihan Exp $
+** $Id: nes6502.c,v 1.2 2003/01/09 19:50:03 jkeil Exp $
 */
 
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "types.h"
 #include "nes6502.h"
@@ -1172,7 +1177,7 @@ static int dma_cycles;
 static uint32 total_cycles = 0;
 
 /* memory region pointers */
-static uint8 *nes6502_banks[NES6502_NUMBANKS*2];
+static uint8 *nes6502_banks[NES6502_NUMBANKS];
 static uint8 *ram = NULL;
 static uint8 *stack_page = NULL;
 
@@ -1182,7 +1187,7 @@ static uint8 *stack_page = NULL;
  */
 #ifdef NES6502_MEM_ACCESS_CTRL
 
-uint8 *acc_nes6502_banks[NES6502_NUMBANKS*2];
+uint8 *acc_nes6502_banks[NES6502_NUMBANKS];
 static uint8 *acc_ram = NULL;
 static uint8 *acc_stack_page = NULL;
 uint8 nes6502_mem_access = 0;
@@ -1193,10 +1198,6 @@ uint8 nes6502_mem_access = 0;
  */
 static void chk_mem_access(uint8 * access, int flags)
 {
-  // Hack fix
-  if (access < 0x10000)
-    return;
-
   uint8 oldchk = * access;
   if ((oldchk&flags) != flags) {
     nes6502_mem_access |= flags;

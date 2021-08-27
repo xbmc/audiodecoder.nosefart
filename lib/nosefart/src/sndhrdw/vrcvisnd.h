@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,7 +21,7 @@
 ** vrcvisnd.h
 **
 ** VRCVI (Konami MMC) sound hardware emulation header
-** $Id: vrcvisnd.h,v 1.1 2003/04/08 20:53:01 ben Exp $
+** $Id: vrcvisnd.h,v 1.2 2003/12/05 15:55:01 f1rmb Exp $
 */
 
 #ifndef _VRCVISND_H_
@@ -64,8 +65,11 @@ extern apuext_t vrcvi_ext;
 
 /*
 ** $Log: vrcvisnd.h,v $
-** Revision 1.1  2003/04/08 20:53:01  ben
-** Adding more files...
+** Revision 1.2  2003/12/05 15:55:01  f1rmb
+** cleanup phase II. use xprintf when it's relevant, use xine_xmalloc when it's relevant too. Small other little fix (can't remember). Change few internal function prototype because it xine_t pointer need to be used if some xine's internal sections. NOTE: libdvd{nav,read} is still too noisy, i will take a look to made it quit, without invasive changes. To be continued...
+**
+** Revision 1.1  2003/01/08 07:04:36  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.7  2000/06/20 04:06:16  matt
 ** migrated external sound definition to apu module

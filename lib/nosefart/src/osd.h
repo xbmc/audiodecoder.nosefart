@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,14 +21,13 @@
 ** osd.h
 **
 ** O/S dependent routine defintions (must be customized)
-** $Id: osd.h,v 1.1 2003/04/08 20:46:46 ben Exp $
+** $Id: osd.h,v 1.2 2003/07/12 12:31:14 mroi Exp $
 */
 
 #ifndef _OSD_H_
 #define _OSD_H_
 
-
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__ICC)
 #define  __PACKED__  __attribute__ ((packed))
 #define  PATH_SEP    '/'
 #ifdef __DJGPP__
@@ -79,8 +79,12 @@ extern void osd_shutdown(void);
 
 /*
 ** $Log: osd.h,v $
-** Revision 1.1  2003/04/08 20:46:46  ben
-** add new input for NES music file.
+** Revision 1.2  2003/07/12 12:31:14  mroi
+** - adding support for the Intel compiler icc
+** - general multipass compilation make targets
+**
+** Revision 1.1  2003/01/08 07:04:35  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.7  2000/07/04 04:45:33  matt
 ** moved INLINE define into types.h
@@ -92,4 +96,3 @@ extern void osd_shutdown(void);
 ** initial revision
 **
 */
-

@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,7 +21,7 @@
 ** nes_apu.h
 **
 ** NES APU emulation header file
-** $Id: nes_apu.h,v 1.2 2003/04/09 14:50:32 ben Exp $
+** $Id: nes_apu.h,v 1.2 2003/01/09 19:50:03 jkeil Exp $
 */
 
 #ifndef _NES_APU_H_
@@ -282,7 +283,6 @@ extern void apu_reset(void);
 extern int apu_setchan(int chan, boolean enabled);
 extern int32 apu_getcyclerate(void);
 extern apu_t *apu_getcontext(void);
-extern void apu_setcontext(apu_t *src_apu);
 
 extern uint8 apu_read(uint32 address);
 extern void apu_write(uint32 address, uint8 value);
@@ -290,6 +290,7 @@ extern void apu_write(uint32 address, uint8 value);
 /* for visualization */
 extern void apu_getpcmdata(void **data, int *num_samples, int *sample_bits);
 
+extern void apu_setcontext(apu_t *src_apu);
 
 #ifdef __cplusplus
 }
@@ -299,11 +300,14 @@ extern void apu_getpcmdata(void **data, int *num_samples, int *sample_bits);
 
 /*
 ** $Log: nes_apu.h,v $
-** Revision 1.2  2003/04/09 14:50:32  ben
-** Clean NSF api.
+** Revision 1.2  2003/01/09 19:50:03  jkeil
+** NSF audio files were crashing on SPARC.
 **
-** Revision 1.1  2003/04/08 20:53:01  ben
-** Adding more files...
+** - Define the correct HOST_ENDIAN for SPARC
+** - remove unaligned memory accesses
+**
+** Revision 1.1  2003/01/08 07:04:35  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.12  2000/07/04 04:54:48  matt
 ** minor changes that helped with MAME
