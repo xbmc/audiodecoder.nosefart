@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -22,8 +23,12 @@
 ** memory allocation wrapper routines
 **
 ** NOTE: based on code (c) 1998 the Retrocade group
-** $Id: memguard.c,v 1.1 2003/04/08 20:46:46 ben Exp $
+** $Id: memguard.c,v 1.4 2004/02/20 19:53:39 komadori Exp $
 */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "types.h"
 
@@ -33,6 +38,8 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+
 #include "memguard.h"
 #include "log.h"
 
@@ -264,14 +271,11 @@ void *_my_malloc(int size)
 /* free a pointer allocated with my_malloc */
 #ifdef NOFRENDO_DEBUG
 void _my_free(void **data, char *file, int line)
-#else
-void _my_free(void **data)
-#endif
 {
    char fail[256];
 
    if (NULL == data || NULL == *data
-       || 0xFFFFFFFF == (uint32) *data || 0xFFFFFFFF == (uint32) data)
+       || ((uintptr_t)-1) == (uintptr_t) *data || ((uintptr_t)-1) == (uintptr_t) data)
    {
 #ifdef NOFRENDO_DEBUG
       sprintf(fail, "free: attempted to free NULL pointer at line %d of %s\n",
@@ -302,6 +306,16 @@ void _my_free(void **data)
 
    *data = NULL; /* NULL our source */
 }
+#else
+void _my_free(void *data)
+{
+   if (NULL == data || ((uintptr_t)-1) == (uintptr_t) data) {
+      ASSERT_MSG("free: attempted to free NULL pointer.\n");
+   }
+
+   free(data);
+}
+#endif
 
 /* check for orphaned memory handles */
 void mem_checkleaks(void)
@@ -363,8 +377,38 @@ void mem_checkblocks(void)
 
 /*
 ** $Log: memguard.c,v $
-** Revision 1.1  2003/04/08 20:46:46  ben
-** add new input for NES music file.
+** Revision 1.4  2004/02/20 19:53:39  komadori
+** Fixed detection of linux framebuffer support. Included xineutils.h in dsputil_mlib.c and added to diff_to_ffmpeg_cvs.txt. Fixed function prototype in dsputil_mlib.c (should be sent back to ffmpeg-dev at some point). Fixed includes in nosefart. Fixed nested comments and includes in goom.
+**
+** Revision 1.3  2004/02/19 02:50:25  rockyb
+** Mandrake patches from
+**   http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/SPECS/xine-lib/
+** via Goetz Waschk who reports:
+**
+**   The amd64 patch (xine-lib-1-rc0a-amd64.patch) sets some conservative
+**   CFLAGS for amd64,
+**
+**   the lib64 patch (xine-lib-1-rc0a-lib64.patch) replaces hardcoded
+**   /lib to support the lib64 library dir on amd64,
+**
+**   the directfb patch (xine-lib-1-rc2-no-directfb.patch) adds a
+**   configure option to disable directfb,
+**
+**   the linuxfb patch (xine-lib-1-rc3a-no-linuxfb.patch) does the same
+**   for linux framebuffer and
+**
+**   the 64bit fixes patch (xine-lib-1-rc3-64bit-fixes.patch) doesn't
+**   apply at the moment against the CVS -- demux_ogg.c was not applied.
+**   it includes some 64 bit pointer and other fixes for 64bit architectures.
+**   from Gwenole Beauchesne
+**
+** I haven't tested other than apply and compile.
+**
+** Revision 1.2  2003/12/05 15:55:01  f1rmb
+** cleanup phase II. use xprintf when it's relevant, use xine_xmalloc when it's relevant too. Small other little fix (can't remember). Change few internal function prototype because it xine_t pointer need to be used if some xine's internal sections. NOTE: libdvd{nav,read} is still too noisy, i will take a look to made it quit, without invasive changes. To be continued...
+**
+** Revision 1.1  2003/01/08 07:04:35  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.8  2000/06/26 04:54:48  matt
 ** simplified and made more robust

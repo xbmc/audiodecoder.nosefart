@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,9 +21,13 @@
 ** nsf.c
 **
 ** NSF loading/saving related functions
-** $Id: nsf.c,v 1.3 2003/05/01 22:34:20 benjihan Exp $
+** $Id: nsf.c,v 1.4 2006/09/26 00:52:17 dgp85 Exp $
 */
 
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -101,6 +106,8 @@ static uint8 invalid_read(uint32 address)
 {
 #ifdef NOFRENDO_DEBUG
    log_printf("filthy NSF read from $%04X\n", address);
+#else
+  (void)address;
 #endif /* NOFRENDO_DEBUG */
 
    return 0xFF;
@@ -110,6 +117,9 @@ static void invalid_write(uint32 address, uint8 value)
 {
 #ifdef NOFRENDO_DEBUG
    log_printf("filthy NSF tried to write $%02X to $%04X\n", value, address);
+#else
+  (void)address;
+  (void)value;
 #endif /* NOFRENDO_DEBUG */
 }
 
@@ -356,15 +366,14 @@ void nes_shutdown(nsf_t *nsf)
    if (nsf->cpu)
    {
       if (nsf->cpu->mem_page[0])
-      {
-        free(nsf->cpu->mem_page[0]);/*tracks 1 and 2 of lifeforce hang here.*/
-      }
-      for (i = 5; i <= 7; i++)
-      {
-        if (nsf->cpu->mem_page[i])
-        {
-          free(nsf->cpu->mem_page[i]);
-        }
+	{
+	 free(nsf->cpu->mem_page[0]);/*tracks 1 and 2 of lifeforce hang here.*/
+	}
+      for (i = 5; i <= 7; i++) {
+	if (nsf->cpu->mem_page[i])
+	{
+	  free(nsf->cpu->mem_page[i]);
+	}
       }
 
 #ifdef NES6502_MEM_ACCESS_CTRL
@@ -379,7 +388,11 @@ void nes_shutdown(nsf_t *nsf)
 	  }
       }
 #endif
-      free(nsf->cpu);
+      {
+        void *tmp = nsf->cpu;
+        free(tmp);
+        nsf->cpu = NULL;
+      }
    }
 }
 
@@ -400,26 +413,26 @@ static int nsf_cpuinit(nsf_t *nsf)
 
    memset(nsf->cpu, 0, sizeof(nes6502_context));
 
-   nsf->cpu->mem_page[0] = malloc(0x800*2); // Hack with *2
+   nsf->cpu->mem_page[0] = malloc(0x800);
    if (NULL == nsf->cpu->mem_page[0])
       return -1;
 
    /* allocate some space for the NSF "player" MMC5 EXRAM, and WRAM */
    for (i = 5; i <= 7; i++)
    {
-      nsf->cpu->mem_page[i] = malloc(0x1000*2); // Hack with *2
+      nsf->cpu->mem_page[i] = malloc(0x1000);
       if (NULL == nsf->cpu->mem_page[i])
          return -1;
    }
 
 #ifdef NES6502_MEM_ACCESS_CTRL
-   nsf->cpu->acc_mem_page[0] = malloc(0x800*2); // Hack with *2
+   nsf->cpu->acc_mem_page[0] = malloc(0x800);
    if (NULL == nsf->cpu->acc_mem_page[0])
       return -1;
    /* allocate some space for the NSF "player" MMC5 EXRAM, and WRAM */
    for (i = 5; i <= 7; i++)
    {
-      nsf->cpu->acc_mem_page[i] = malloc(0x1000*2); // Hack with *2
+      nsf->cpu->acc_mem_page[i] = malloc(0x1000);
       if (NULL == nsf->cpu->acc_mem_page[i])
          return -1;
    }
@@ -560,9 +573,13 @@ static int nfs_length_file(struct nsf_loader_t *loader)
   struct nsf_file_loader_t * floader = (struct nsf_file_loader_t *)loader;
   long save, pos;
   save = ftell(floader->fp);
-  fseek(floader->fp, 0, SEEK_END);
+  if (save < 0)
+    return 0;
+  if (fseek(floader->fp, 0, SEEK_END) < 0)
+    return 0;
   pos = ftell(floader->fp);
-  fseek(floader->fp, save, SEEK_SET);
+  if (fseek(floader->fp, save, SEEK_SET) < 0)
+    return 0;
   return pos;
 }
 
@@ -652,16 +669,15 @@ static int nfs_skip_mem(struct nsf_loader_t *loader, int n)
   mloader->cur = (goal > mloader->len) ? mloader->len : goal;
   return goal - mloader->cur;
 }
-
+/*
 static const char * nfs_fname_mem(struct nsf_loader_t *loader)
 {
   struct nsf_mem_loader_t * mloader = (struct nsf_mem_loader_t *)loader;
   return mloader->fname;
 }
-
+*/
 static struct nsf_mem_loader_t nsf_mem_loader = {
-  { nfs_open_mem, nfs_close_mem, nfs_read_mem, nfs_length_mem, nfs_skip_mem },
-  0,0,0
+  .loader = { nfs_open_mem, nfs_close_mem, nfs_read_mem, nfs_length_mem, nfs_skip_mem, 0 }
 };
 
 nsf_t EXPORT *nsf_load_extended(struct nsf_loader_t * loader)
@@ -804,7 +820,7 @@ nsf_t EXPORT *nsf_load_extended(struct nsf_loader_t * loader)
       + (nsf_file_ext.size[2] << 16)
       + (nsf_file_ext.size[3] << 24);
 
-    if (size < sizeof(nsf_file_ext)) {
+    if (size < (int)sizeof(nsf_file_ext)) {
       log_printf("nsf : [%s] corrupt extension size (%d)\n",
 		 loader->fname(loader), size);
       /* Not a fatal error here. Just skip extension loading. */
@@ -931,12 +947,18 @@ void EXPORT nsf_free(nsf_t **pnsf)
       apu_destroy(nsf->apu);
 
     nes_shutdown(nsf);
+    
+    if (nsf->data) {
+      void *tmp = nsf->data;
+      free(tmp);
+      nsf->data = NULL;
+    }
 
-    if (nsf->data)
-      free(nsf->data);
-
-    if (nsf->song_frames)
-      free (nsf->song_frames);
+    if (nsf->song_frames) {
+      void *tmp = nsf->song_frames;
+      free (tmp);
+      nsf->song_frames = NULL;
+    }
 
     free(nsf);
   }

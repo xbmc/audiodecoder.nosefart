@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -22,7 +23,7 @@
 ** VRCVII (Konami MMC) sound hardware emulation header
 ** Thanks to Charles MacDonald (cgfm2@hooked.net) for donating code.
 **
-** $Id: vrc7_snd.h,v 1.1 2003/04/08 20:53:01 ben Exp $
+** $Id: vrc7_snd.h,v 1.1 2003/01/08 07:04:36 tmmm Exp $
 */
 
 #ifndef _VRC7_SND_H_
@@ -55,8 +56,8 @@ extern apuext_t vrc7_ext;
 
 /*
 ** $Log: vrc7_snd.h,v $
-** Revision 1.1  2003/04/08 20:53:01  ben
-** Adding more files...
+** Revision 1.1  2003/01/08 07:04:36  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.3  2000/07/04 04:51:02  matt
 ** made data types stricter
@@ -68,4 +69,3 @@ extern apuext_t vrc7_ext;
 ** initial revision
 **
 */
-

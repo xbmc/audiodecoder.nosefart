@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,7 +21,7 @@
 ** nsf.h
 **
 ** NSF loading/saving related defines / prototypes
-** $Id: nsf.h,v 1.3 2003/05/01 22:34:20 benjihan Exp $
+** $Id: nsf.h,v 1.3 2007/01/18 21:34:10 dgp85 Exp $
 */
 
 #ifndef _NSF_H_
@@ -29,6 +30,20 @@
 #include "osd.h"
 #include "nes6502.h"
 #include "nes_apu.h"
+
+#undef ATTRIBUTE_PACKED
+#undef PRAGMA_PACK_BEGIN
+#undef PRAGMA_PACK_END
+
+#if defined(__GNUC__)
+#define ATTRIBUTE_PACKED __attribute__((packed))
+#define PRAGMA_PACK 0
+#endif
+
+#if !defined(ATTRIBUTE_PACKED)
+#define ATTRIBUTE_PACKED
+#define PRAGMA_PACK 1
+#endif
 
 #ifndef EXPORT
 #ifdef WIN32
@@ -75,22 +90,22 @@ enum
 typedef struct nsf_s
 {
    /* NESM header */
-   uint8  id[5]               __PACKED__; /* NESM\x1A */
-   uint8  version             __PACKED__; /* spec version */
-   uint8  num_songs           __PACKED__; /* total num songs */
-   uint8  start_song          __PACKED__; /* first song */
-   uint16 load_addr           __PACKED__; /* loc to load code */
-   uint16 init_addr           __PACKED__; /* init call address */
-   uint16 play_addr           __PACKED__; /* play call address */
-   uint8  song_name[32]       __PACKED__; /* name of song */
-   uint8  artist_name[32]     __PACKED__; /* artist name */
-   uint8  copyright[32]       __PACKED__; /* copyright info */
-   uint16 ntsc_speed          __PACKED__; /* playback speed (if NTSC) */
-   uint8  bankswitch_info[8]  __PACKED__; /* initial code banking */
-   uint16 pal_speed           __PACKED__; /* playback speed (if PAL) */
-   uint8  pal_ntsc_bits       __PACKED__; /* NTSC/PAL determination bits */
-   uint8  ext_sound_type      __PACKED__; /* type of external sound gen. */
-   uint8  reserved[4]         __PACKED__; /* reserved */
+   uint8  id[5];              /* NESM\x1A */
+   uint8  version;            /* spec version */
+   uint8  num_songs;          /* total num songs */
+   uint8  start_song;         /* first song */
+   uint16 load_addr;          /* loc to load code */
+   uint16 init_addr;          /* init call address */
+   uint16 play_addr;          /* play call address */
+   uint8  song_name[32];      /* name of song */
+   uint8  artist_name[32];    /* artist name */
+   uint8  copyright[32];      /* copyright info */
+   uint16 ntsc_speed;         /* playback speed (if NTSC) */
+   uint8  bankswitch_info[8]; /* initial code banking */
+   uint16 pal_speed;          /* playback speed (if PAL) */
+   uint8  pal_ntsc_bits;      /* NTSC/PAL determination bits */
+   uint8  ext_sound_type;     /* type of external sound gen. */
+   uint8  reserved[4];        /* reserved */
 
    /* things that the NSF player needs */
    uint8  *data;              /* actual NSF data */
@@ -113,7 +128,7 @@ typedef struct nsf_s
 
    /* our main processing routine, calls all external mixing routines */
    void (*process)(void *buffer, int num_samples);
-} nsf_t;
+} ATTRIBUTE_PACKED nsf_t;
 
 /* $$$ ben : Generic loader struct */
 struct nsf_loader_t {

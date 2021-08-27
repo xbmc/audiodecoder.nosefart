@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,7 +21,7 @@
 ** memguard.h
 **
 ** memory allocation wrapper routines
-** $Id: memguard.h,v 1.1 2003/04/08 20:46:46 ben Exp $
+** $Id: memguard.h,v 1.2 2003/03/01 02:23:01 storri Exp $
 */
 
 #ifndef  _MEMGUARD_H_
@@ -37,10 +38,10 @@ extern void _my_free(void **data, char *file, int line);
 #else /* Non-debugging versions of calls */
 
 #define  malloc(s)   _my_malloc((s))
-#define  free(d)     _my_free((void **) &(d))
+#define  free(d)     do { _my_free(d); (d) = NULL; } while (0)
 
 extern void *_my_malloc(int size);
-extern void _my_free(void **data);
+extern void _my_free(void *data);
 
 #endif /* NOFRENDO_DEBUG */
 
@@ -54,8 +55,11 @@ extern boolean mem_debug;
 
 /*
 ** $Log: memguard.h,v $
-** Revision 1.1  2003/04/08 20:46:46  ben
-** add new input for NES music file.
+** Revision 1.2  2003/03/01 02:23:01  storri
+** Added new line at end of file to remove compiler warning.
+**
+** Revision 1.1  2003/01/08 07:04:35  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.5  2000/06/26 04:54:48  matt
 ** simplified and made more robust
@@ -64,3 +68,4 @@ extern boolean mem_debug;
 ** initial revision
 **
 */
+

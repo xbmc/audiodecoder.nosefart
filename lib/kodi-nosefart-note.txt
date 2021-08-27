@@ -1,1 +1,5 @@
-Source from https://sourceforge.net/projects/nosefart/files/1.%20All%20stable%20nosefart%20sources/2.9-mls/
+Current source from https://sourceforge.net/p/xine/xine-lib-1.2/ci/default/tree/contrib/nosefart/
+
+Contains few changes to have working on all OS.
+
+Original source: https://sourceforge.net/projects/nosefart/files/1.%20All%20stable%20nosefart%20sources/2.9-mls/

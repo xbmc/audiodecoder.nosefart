@@ -11,7 +11,8 @@
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
 ** Library General Public License for more details.  To obtain a 
 ** copy of the GNU Library General Public License, write to the Free 
-** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+** Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+** MA 02110-1301, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
@@ -20,11 +21,15 @@
 ** types.h
 **
 ** Data type definitions
-** $Id: types.h,v 1.1 2003/04/08 20:46:46 ben Exp $
+** $Id: types.h,v 1.4 2004/08/27 19:33:37 valtri Exp $
 */
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef _NOSEFART_TYPES_H_
+#define _NOSEFART_TYPES_H_
+
+#if defined(HAVE_CONFIG_H)
+#  error config.h not included
+#endif
 
 /* Define this if running on little-endian (x86) systems */
 
@@ -95,12 +100,44 @@ typedef  uint8    boolean;
 #define  ASSERT_MSG(msg)
 #endif
 
-#endif /* _TYPES_H_ */
+#endif /* _NOSEFART_TYPES_H_ */
 
 /*
 ** $Log: types.h,v $
-** Revision 1.1  2003/04/08 20:46:46  ben
-** add new input for NES music file.
+** Revision 1.4  2004/08/27 19:33:37  valtri
+** MINGW32 port. Engine library and most of plugins compiles now.
+**
+** List of some changes:
+**  - replaced some _MSC_VER by more common WIN32
+**  - define INTLDIR, remove -static flag for included intl
+**  - shared more common CFLAGS with DEBUG_CFLAGS
+**  - use WIN32_CFLAGS for all building
+**  - separate some flags into THREAD_CFLAGS_CONFIG,
+**    THREAD_CFLAGS_CONFIG and ZLIB_LIB_CONFIG for public xine-config,
+**    automatically use internal libs if necessary
+**  - don't warn about missing X for mingw and cygwin
+**  - libw32dll disabled for WIN32 (making native loader would be
+**    interesting, or porting wine code to Windows? :->)
+**  - DVB and RTP disabled for WIN32, not ported yet
+**  - fix build and fix a warning in cdda
+**  - fix build for nosefart and libfaad
+**  - implement configure option --disable-freetype
+**  - sync libxine.pc and xine-config.in
+**  - add -liberty to goom under WIN32
+**  - move original build files from included phread and zlib into archives
+**    and replace them by autotools
+**
+** Revision 1.3  2003/01/11 15:53:53  tmmm
+** make the Nosefart engine aware of the config's WORDS_BIGENDIAN #define
+**
+** Revision 1.2  2003/01/09 19:50:04  jkeil
+** NSF audio files were crashing on SPARC.
+**
+** - Define the correct HOST_ENDIAN for SPARC
+** - remove unaligned memory accesses
+**
+** Revision 1.1  2003/01/08 07:04:36  tmmm
+** initial import of Nosefart sources
 **
 ** Revision 1.7  2000/07/04 04:46:44  matt
 ** moved INLINE define from osd.h

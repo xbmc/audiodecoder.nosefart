@@ -14,13 +14,17 @@
 	note:
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <math.h>
 //#include "driver.h"		/* use M.A.M.E. */
 #include "fmopl.h"
-#include <math.h>
 
 /* MPC - hacks */
 #include "types.h"
@@ -46,7 +50,7 @@
 /* final output shift , limit minimum and maximum */
 #define OPL_OUTSB   (TL_BITS+3-16)		/* OPL output final shift 16bit */
 #define OPL_MAXOUT (0x7fff<<OPL_OUTSB)
-#define OPL_MINOUT (-0x8000<<OPL_OUTSB)
+#define OPL_MINOUT (-(0x8000<<OPL_OUTSB))
 
 /* -------------------- quality selection --------------------- */
 
@@ -217,19 +221,6 @@ static INT32 feedback2;		/* connect for SLOT 2 */
 #define LOG(n,x) if( (n)>=LOG_LEVEL ) log_printf x
 
 /* --------------------- subroutines  --------------------- */
-
-/* There's no good reason why I should have to do this, but using "pow"
-(the POSIX fuction) causes it to not compile on my machine 
---Matthew Strait */
-double mypow(float base, int power)
-{
-	int ans = 1, k;
-	
-	for( k = 0; k < power; k++)
-		ans *= (int)base;
-	
-	return ans;
-}
 
 INLINE int Limit( int val, int max, int min ) {
 	if ( val > max )
@@ -583,7 +574,7 @@ static void init_timetables( FM_OPL *OPL , int ARRATE , int DRRATE )
 		OPL->AR_TABLE[i] = (INT32) (rate / ARRATE);
 		OPL->DR_TABLE[i] = (INT32) (rate / DRRATE);
 	}
-	for (i = 60;i < 75;i++)
+	for (i = 60;i < 76;i++)
 	{
 		OPL->AR_TABLE[i] = EG_AED-1;
 		OPL->DR_TABLE[i] = OPL->DR_TABLE[60];
@@ -628,7 +619,7 @@ static int OPLOpenTable( void )
 	}
 	/* make total level table */
 	for (t = 0;t < EG_ENT-1 ;t++){
-		rate = ((1<<TL_BITS)-1)/mypow(10,EG_STEP*t/20);	/* dB -> voltage */
+		rate = ((1<<TL_BITS)-1)/pow(10,EG_STEP*t/20);	/* dB -> voltage */
 		TL_TABLE[       t] =  (int)rate;
 		TL_TABLE[TL_MAX+t] = -TL_TABLE[t];
 /*		LOG(LOG_INF,("TotalLevel(%3d) = %x\n",t,TL_TABLE[t]));*/
@@ -663,7 +654,7 @@ static int OPLOpenTable( void )
 	for (i=0; i<EG_ENT; i++)
 	{
 		/* ATTACK curve */
-		pom = (float)mypow( ((double)(EG_ENT-1-i)/EG_ENT) , 8 ) * EG_ENT;
+		pom = pow( ((double)(EG_ENT-1-i)/EG_ENT) , 8 ) * EG_ENT;
 		/* if( pom >= EG_ENT ) pom = EG_ENT-1; */
 		ENV_CURVE[i] = (int)pom;
 		/* DECAY ,RELEASE curve */
@@ -1334,5 +1325,3 @@ int OPLTimerOver(FM_OPL *OPL,int c)
 	if (OPL->TimerHandler) (OPL->TimerHandler)(OPL->TimerParam+c,(double)OPL->T[c]*OPL->TimerBase);
 	return OPL->status>>7;
 }
-
-
