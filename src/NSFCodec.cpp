@@ -40,19 +40,7 @@ bool CNSFCodec::Init(const std::string& filename,
                      std::vector<AudioEngineChannel>& channellist)
 {
   int track = 0;
-  std::string toLoad(filename);
-  if (toLoad.find(".nsfstream") != std::string::npos)
-  {
-    size_t iStart = toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size() - iStart - 10).c_str());
-    //  The directory we are in, is the file
-    //  that contains the bitstream to play,
-    //  so extract it
-    size_t slash = toLoad.rfind('\\');
-    if (slash == std::string::npos)
-      slash = toLoad.rfind('/');
-    toLoad = toLoad.substr(0, slash);
-  }
+  const std::string toLoad = kodi::addon::CInstanceAudioDecoder::GetTrack("nsf", filename, track);
 
   m_module = LoadNSF(toLoad);
   if (!m_module)
@@ -91,10 +79,10 @@ bool CNSFCodec::Init(const std::string& filename,
   return true;
 }
 
-int CNSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
+int CNSFCodec::ReadPCM(uint8_t* buffer, size_t size, size_t& actualsize)
 {
   if (!buffer)
-    return 1;
+    return AUDIODECODER_READ_ERROR;
 
   actualsize = 0;
   while (size && m_module)
@@ -119,11 +107,11 @@ int CNSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
 
     if (m_limitFrames != 0 && m_frames >= m_limitFrames)
     {
-      return -1;
+      return AUDIODECODER_READ_EOF;
     }
   }
 
-  return size != 0;
+  return size != 0 ? AUDIODECODER_READ_ERROR : AUDIODECODER_READ_SUCCESS;
 }
 
 int64_t CNSFCodec::Seek(int64_t time)
@@ -393,7 +381,7 @@ unsigned int CNSFCodec::Calctime(int track, unsigned int frame_frag, bool force)
 
 //------------------------------------------------------------------------------
 
-class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
+class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
