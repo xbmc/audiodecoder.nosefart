@@ -23,3 +23,9 @@ msgstr ""
 msgctxt "Addon Description"
 msgid "The Nintendo Sound Format (NSF) is a container format, that holds audio code ripped from the ROMs of games for the Nintendo Entertainment System. The NES had a pretty good sound engine for its time supporting 2 pulse-waves, 1 triangle wave, a noise channel, and DPCM channel which is a raw 7-bit counter raw sample playback."
 msgstr ""
+
+#. Supported file extension description about ".nsf"
+#: audiodecoder.nosefart/addon.xml.in
+msgctxt "#30100"
+msgid "Nintendo Sound Format (NSF) is a container format from a video gaming console by Nintendo and released in 1983."
+msgstr ""
