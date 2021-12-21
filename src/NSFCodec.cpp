@@ -12,8 +12,7 @@
 
 unsigned int CNSFCodec::m_usedLib = 0;
 
-CNSFCodec::CNSFCodec(KODI_HANDLE instance, const std::string& version)
-  : CInstanceAudioDecoder(instance, version)
+CNSFCodec::CNSFCodec(const kodi::addon::IInstanceInfo& instance) : CInstanceAudioDecoder(instance)
 {
 }
 
@@ -183,13 +182,13 @@ nsf_t* CNSFCodec::LoadNSF(const std::string& toLoad, bool forTag /* = false*/)
     std::string source;
     if (forTag)
     {
-      source = kodi::GetAddonPath(LIBRARY_PREFIX "nosefart_tag" LIBRARY_SUFFIX);
+      source = kodi::addon::GetAddonPath(LIBRARY_PREFIX "nosefart_tag" LIBRARY_SUFFIX);
     }
     else
     {
       m_usedLib = !m_usedLib;
-      source = kodi::GetAddonPath(LIBRARY_PREFIX + std::string("nosefart_") +
-                                  std::to_string(m_usedLib) + LIBRARY_SUFFIX);
+      source = kodi::addon::GetAddonPath(LIBRARY_PREFIX + std::string("nosefart_") +
+                                         std::to_string(m_usedLib) + LIBRARY_SUFFIX);
     }
 
     if (!LoadDll(source))
@@ -385,13 +384,10 @@ class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType,
-                              const std::string& instanceID,
-                              KODI_HANDLE instance,
-                              const std::string& version,
-                              KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                              KODI_ADDON_INSTANCE_HDL& hdl) override
   {
-    addonInstance = new CNSFCodec(instance, version);
+    hdl = new CNSFCodec(instance);
     return ADDON_STATUS_OK;
   }
   virtual ~CMyAddon() = default;
