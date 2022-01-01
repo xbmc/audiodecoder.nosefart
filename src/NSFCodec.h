@@ -22,7 +22,7 @@ class ATTR_DLL_LOCAL CNSFCodec : public kodi::addon::CInstanceAudioDecoder,
                                  private kodi::tools::CDllHelper
 {
 public:
-  CNSFCodec(KODI_HANDLE instance, const std::string& version);
+  CNSFCodec(const kodi::addon::IInstanceInfo& instance);
   virtual ~CNSFCodec();
 
   bool Init(const std::string& filename,
