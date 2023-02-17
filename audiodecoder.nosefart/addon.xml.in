@@ -33,6 +33,7 @@
     <summary lang="eo">Nosefart (NSF) sonmalĉifrilo</summary>
     <summary lang="es_ES">Decodificador de Audio Nosefart (NSF)</summary>
     <summary lang="es_MX">Decodificador de audio Nosefart (NSF)</summary>
+    <summary lang="eu_ES">Nosefart (NSF) Audio deskodetzailea</summary>
     <summary lang="fi_FI">Nosefart (NSF) -äänidekooderi</summary>
     <summary lang="fr_FR">Décodeur audio Nosefart (NSF)</summary>
     <summary lang="hr_HR">Nosefart (NSF) zvučni dekôder</summary>
@@ -49,6 +50,7 @@
     <description lang="eo">La Nintendo sonformato (NSF) estas kontenerformato, ke enhavas sonkodon</description>
     <description lang="es_ES">Nintendo Sound Format (NSF) es un formato contenedor, que contiene el audio extraido de las ROMs de los juegos de Nintendo Entertainment System. La NES tiene un motor de sonido muy bueno para su época, soportando 2 ondas-pulso, 1 onda triangular, un canal de ruido y un canal DPCM que es un contador de 7-bits directo de la muestra reproducida.</description>
     <description lang="es_MX">El formato de audio de Nintendo (NSF) (Nintendo Sound Format, N. del T.) es un formato contenedor que contiene código de audio extraído de ROMs de juegos para la Nintendo Entertainment System. La NES tuvo un motor de sonido bastante bueno para su época, soportando 2 ondas-pulso, 1 onda triangular, un canal de ruido, y un canal DPCM que es un contador de 7-bit directo de reproducción de muestras.</description>
+    <description lang="eu_ES">Nintendoren soinu formatua(Nintendo Sound Format, NSF), Nintendo Entertainment Systemeko jokuen ROMetatik ateratako audio-kodea gordetzen du. NES kontsolak soinu-motor oso ona zuen bere garairako, 2 pultsu-uhin, triangelu-uhin 1, zaratarentzat kanal 1 eta DPCM kanal 1 (laginetatik zuzenean erreproduzitutako 7-biteko kontagailua) zituen.</description>
     <description lang="fi_FI">The Nintendo Sound Format (NSF) on säiliömuoto, joka sisältää Nintende Entertainment System -laitteiston pelimedioilta kopioitua äänikoodia. NES-järjestelmässä oli aikaansa nähden varsin hyvä äänimoottori, joka tuki 2 pulssiaaltoa, 1 kolmioaaltoa, melukanvaa sekä DPCM-kanavaa, joka on puhtaan 7-bittisen laskurin näytteentoisto.</description>
     <description lang="fr_FR">Le Nintendo Sound Format (NSF) est un format de conteneur qui contient du code audio extrait des ROM de jeux pour le système de divertissement Nintendo. La NES avait un assez bon moteur sonore pour l&apos;époque prenant en charge 2 ondes pulsées, 1 onde triangulaire, un canal de bruit et un canal DPCM qui est une lecture d&apos;échantillon brut de 7 bits.</description>
     <description lang="hr_HR">Nintendo Sound Format (NSF) je kontenjerski format, koji drži zvučni kôd izdvojen iz ROM-a igre za Nintendo Entertainment System. NES je imao prilično dobar zvučni pogon za svoje vrijeme, podržavao je 2 pulsne-waves, 1 trokutasti wave, šum u kanalu, i DPCM kanal koji je raw 7-bitni brojač raw primjeraka reprodukcije.</description>
