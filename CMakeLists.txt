@@ -23,13 +23,6 @@ add_definitions(-DLIBRARY_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"
 
 set(NOSEFART_ADDITIONAL_BINARY $<TARGET_FILE:nosefart_tag> $<TARGET_FILE:nosefart_0> $<TARGET_FILE:nosefart_1>)
 
-if(WIN32)
-  find_package(dlfcn-win32 REQUIRED)
-  list(APPEND DEPLIBS ${dlfcn-win32_LIBRARIES})
-  include_directories(${dlfcn-win32_INCLUDE_DIRS})
-  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-endif()
-
 build_addon(audiodecoder.nosefart NOSEFART DEPLIBS)
 
 include(CPack)
